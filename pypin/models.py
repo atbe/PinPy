@@ -527,12 +527,11 @@ class PinterestPaginatedModel(JsonDataWrapper, Iterator):
                 return self._data_type(self.items[self._current - 1])
             return self.items[self._current - 1]
 
+
 class UserFollowersV3(PinterestPaginatedModel):
     '''
     API Reference: https://developers.pinterest.com/docs/api/users/
     '''
-
-
     def __init__(self, json_data, user_id, api_paginate_function):
         def set_page(json, new_value):
             json['bookmark'] = new_value
@@ -540,6 +539,7 @@ class UserFollowersV3(PinterestPaginatedModel):
         super().__init__(json_data, user_id, api_paginate_function,
                          page_getter_func=lambda json: json.get('bookmark', None),
                          page_setter_func=set_page)
+
 
 class UserFollowingV3(PinterestPaginatedModel):
 
@@ -551,6 +551,7 @@ class UserFollowingV3(PinterestPaginatedModel):
                          page_getter_func=lambda json: json.get('bookmark', None),
                          page_setter_func=set_page)
 
+
 class UserPinsV3(PinterestPaginatedModel):
 
     def __init__(self, json_data, user_id, api_paginate_function):
@@ -558,5 +559,16 @@ class UserPinsV3(PinterestPaginatedModel):
             json['bookmark'] = new_value
 
         super().__init__(json_data, user_id, api_paginate_function,
+                         page_getter_func=lambda json: json.get('bookmark', None),
+                         page_setter_func=set_page)
+
+
+class PinCommentsV3(PinterestPaginatedModel):
+
+    def __init__(self, json_data, pin_id, api_paginate_function):
+        def set_page(json, new_value):
+            json['bookmark'] = new_value
+
+        super().__init__(json_data, pin_id, api_paginate_function,
                          page_getter_func=lambda json: json.get('bookmark', None),
                          page_setter_func=set_page)

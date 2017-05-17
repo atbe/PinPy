@@ -431,7 +431,7 @@ class API(object):
 
     def get_user_pins_v3(self, user_id, bookmark=None, page_size=100):
         if not self.v3_access_token:
-            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_user_following_v3).')
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_user_pins_v3).')
 
         api_endpoint = "{}/{}/users/{}/pins/".format(self.host, 'v3', user_id)
         # print(api_endpoint)
@@ -441,3 +441,16 @@ class API(object):
         else:
             request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
             return pypin.UserPinsV3(API.call(request_url), user_id, self.get_user_pins_v3)
+
+    def get_pin_comments_v3(self, pin_id, bookmark=None, page_size=100):
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_pin_comments_v3).')
+
+        api_endpoint = "{}/{}/pins/{}/comments/".format(self.host, 'v3', pin_id)
+        # print(api_endpoint)
+        if bookmark:
+            request_url = "{}?page_size={}&bookmark={}&access_token={}".format(api_endpoint, page_size, bookmark, self.v3_access_token)
+            return API.call(request_url)
+        else:
+            request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.PinCommentsV3(API.call(request_url), pin_id, self.get_pin_comments_v3)
