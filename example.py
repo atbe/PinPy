@@ -1,11 +1,14 @@
 """client script"""
 import pypin
+import os
+from pprint import pprint
 
-api = pypin.API("")
+api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
 
-print (api.get_me())
-
-print (api.get_boards())
+# getting a pin using the experimental v3 of the api
+pin = api.get_public_pin_v3('521713938070463188')
+del pin._data['feedback_options']
+pprint(pin.to_json())
 
 # print API_CLIENT.create_board({'name': 'test3'})
 

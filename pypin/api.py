@@ -1,13 +1,14 @@
 import json
 import requests
 import urllib.request
+import pypin
 
 class API(object):
     """Pinterest API"""
 
     TIMEOUT = 20
 
-    def __init__(self, access_token=None,
+    def __init__(self, access_token=None, v3_access_token=None,
                  host='https://api.pinterest.com', api_root='/v1',
                  wait_on_rate_limit=False, wait_on_rate_limit_notify=False):
         """ Api instance Constructor
@@ -19,6 +20,7 @@ class API(object):
         :param wait_on_rate_limit_notify: If the api print a notification when the rate limit is hit, default:False
         """
         self.access_token = access_token
+        self.v3_access_token = v3_access_token
         self.api_root = api_root
         self.host = host
         self.wait_on_rate_limit = wait_on_rate_limit
@@ -35,12 +37,14 @@ class API(object):
             fields: String, optional, expected return fields,
                 will return default fields if not specified
         """
-        request = getattr(requests, method)(url, timeout=API.TIMEOUT, data=params)
+        result = getattr(requests, method)(url, timeout=API.TIMEOUT, data=params)
         # print (request.json())
-        if request.status_code in [200, 201]:
-            return request.json()['data']
+        if result.status_code in [200, 201]:
+            return result.json()
+        elif result.status_code == 404:
+            raise pypin.exceptions.PyPinContentNotFoundError(response=result)
         else:
-            raise RuntimeError('API request return status code '+str(request.status_code))
+            raise pypin.exceptions.PyPinUnhandledResponseCodeError(response=result)
 
     def get_me(self):
         """Get the authenticated user's Pinterest account info"""
@@ -131,9 +135,34 @@ class API(object):
         request_url = api_endpoint + '?access_token=' + self.access_token
         return API.call(request_url, 'get')
 
-    def get_user(self, username):
-        """Get the account info for a Pinterest user"""
-        pass
+    def get_user(self, user_id):
+        """GET - Gets data on a user using the /api_version/users/<user>/ endpoint
+
+        Parameters
+        ----------
+        user_id : string
+            The id of the user to retrieve.
+
+        Returns
+        -------
+        json_array
+            The response from Pinterest.
+
+        Raises
+        -------
+        RuntimeError
+            If the response code != 200, this exception will be raised along
+            with the return code of the request.
+
+        """
+        api_endpoint = self.host + self.api_root + "/users/{:s}".format(user_id)
+        request_url = api_endpoint + '?access_token=' + self.access_token
+        desired_attributes = ['id', 'username', 'first_name', 'last_name', 'bio', 'created_at', 'counts', 'image']
+        desired_attributes = [atr + '%2C' for atr in desired_attributes]
+        request_url += "&fields={}".format(''.join(desired_attributes))
+        request_url = request_url.rstrip('%2C')
+        # print(request_url)
+        return pypin.User(API.call(request_url)['data'])
 
     def create_board(self, board_info):
         """Create a new board
@@ -157,37 +186,271 @@ class API(object):
         request_url = api_endpoint + '?access_token=' + self.access_token
         return API.call(request_url, 'post', pin_info)
 
-    def get_public_pin(self, pin_id, desired_attributes=None):
+    def get_public_pin(self, pin_id):
         """GET - Gets data on a pin using the /v1/pins/<pin>/ endpoint
-        available attributes:
-            ['id', 'link', 'note', 'url', 'color', 'attribution', 'board',
-                'counts', 'created_at', 'creator', 'original_link', 'media', 'image', 'metadata']
 
+        Parameters
+        ----------
+        pin_id : string
+            The id of the pin to retrieve.
 
-            Parameters
-            ----------
-            pin_id : string
-                The id of the pin to retrieve.
-            desired_attributes : list[string], optional
-                The list of attributes to request for the associated pin.
+        Returns
+        -------
+        json_array
+            The response from Pinterest.
 
-            Returns
-            -------
-            json_array
-                The response from Pinterest.
-
-            Raises
-            -------
-            RuntimeError
-                If the response code != 200, this exception will be raised along
-                with the return code of the request.
+        Raises
+        -------
+        RuntimeError
+            If the response code != 200, this exception will be raised along
+            with the return code of the request.
 
         """
         api_endpoint = self.host + self.api_root + "/pins/{:s}".format(pin_id)
         request_url = api_endpoint + '?access_token=' + self.access_token
-        if desired_attributes:
-            desired_attributes = [atr + '%2C' for atr in desired_attributes]
-            request_url += "&fields={}".format(''.join(desired_attributes))
-            request_url = request_url.rstrip('%2C')
-            # print(request_url)
-        return API.call(request_url)
+        desired_attributes = ['attribution', 'board', 'color', 'counts', 'created_at', 'creator',
+                              'id', 'image', 'link', 'media', 'metadata', 'note', 'original_link', 'url']
+        desired_attributes = [atr + '%2C' for atr in desired_attributes]
+        request_url += "&fields={}".format(''.join(desired_attributes))
+        request_url = request_url.rstrip('%2C')
+        # print(request_url)
+        return pypin.Pin(API.call(request_url)['data'])
+
+    def get_public_board(self, board_id):
+        """ Reference: https://developers.pinterest.com/docs/api/boards/
+
+        GET - Gets all pins on a board using the /v1/boards/<board_spec:board>/pins/ endpoint
+
+        Parameters
+        ----------
+        board_id : string
+            The id of the board to retrieve.
+
+        Returns
+        -------
+        json_array
+            The response from Pinterest.
+
+        Raises
+        -------
+        RuntimeError
+            If the response code != 200, this exception will be raised along
+            with the return code of the request.
+
+        """
+        api_endpoint = self.host + self.api_root + "/boards/{:s}".format(board_id)
+        request_url = api_endpoint + '?access_token=' + self.access_token
+        desired_attributes = ['counts', 'created_at', 'creator', 'description', 'id', 'image', 'name', 'url']
+        desired_attributes = [atr + '%2C' for atr in desired_attributes]
+        request_url += "&fields={}".format(''.join(desired_attributes))
+        request_url = request_url.rstrip('%2C')
+        # print(request_url)
+
+        # build the user object, makes one call to API
+        json_data = API.call(request_url)['data']
+        json_data['creator'] = self.get_user(json_data['creator']['id'])
+
+        return pypin.Board(json_data)
+
+    def get_public_board_pins(self, board_id, cursor=None):
+        """ Reference: https://developers.pinterest.com/docs/api/boards/
+
+        GET - Gets all pins on a board using the /v1/boards/<board_spec:board>/pins/ endpoint
+
+        Parameters
+        ----------
+        board_id : string
+            The id of the board to retrieve.
+
+        Returns
+        -------
+        json_array
+            The response from Pinterest.
+
+        Raises
+        -------
+        RuntimeError
+            If the response code != 200, this exception will be raised along
+            with the return code of the request.
+
+        """
+        desired_attributes = ['attribution', 'board', 'color', 'counts', 'created_at', 'creator',
+                              'id', 'image', 'link', 'media', 'metadata', 'note', 'original_link', 'url']
+        desired_attributes = [atr + '%2C' for atr in desired_attributes]
+        api_endpoint = self.host + self.api_root + "/boards/{:s}/pins".format(str(board_id))
+        if cursor:
+            request_url = "{}?cursor={}&access_token={}".format(api_endpoint, cursor, self.access_token)
+        else:
+            request_url = "{}?access_token={}".format(api_endpoint, self.access_token)
+        request_url += "&fields={}".format(''.join(desired_attributes))
+        request_url = request_url.rstrip('%2C')
+        # print(request_url)
+        if cursor:
+            return API.call(request_url)
+        else:
+            return pypin.BoardPins(API.call(request_url), board_id, self)
+
+    def get_public_board_pins_v3(self, board_id, bookmark=None, page_size=100):
+        '''
+        EXPERIMENTAL
+
+        Uses the API v3 endpoint to get the pins on a board. More flexible than v1 because of higher request
+        limits and the ability to return up to 250 pins per request.
+
+        :param board_id:
+        :param bookmark: Bookmark of the request for pagination.
+        :return:
+        '''
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_public_board_pins_v3).')
+
+        api_endpoint = "{}/{}/boards/{}/pins/".format(self.host, 'v3', board_id)
+        # print(api_endpoint)
+        if bookmark:
+            request_url = "{}?page_size={}&bookmark={}&access_token={}".format(api_endpoint, page_size, bookmark, self.v3_access_token)
+            return API.call(request_url)
+        else:
+            request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.BoardPinsV3(API.call(request_url), board_id, self)
+
+
+    def get_public_pin_v3(self, pin_id):
+        """GET - Gets data on a pin using the /v3/pins/<pin>/ endpoint
+
+        EXPERIMENTAL
+
+        Uses the API v3 endpoint to get the pin. More flexible than v1 because of higher request limits and more data.
+
+        Parameters
+        ----------
+        pin_id : string
+            The id of the pin to retrieve.
+
+        Returns
+        -------
+        json_array
+            The response from Pinterest.
+
+        Raises
+        -------
+        RuntimeError
+            If the response code != 200, this exception will be raised along
+            with the return code of the request.
+
+        """
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_public_board_pins_v3).')
+
+        api_endpoint = "{}/{}/pins/{}/".format(self.host, 'v3', pin_id)
+        request_url = "{}?access_token={}".format(api_endpoint, self.v3_access_token)
+        # print(request_url)
+        return pypin.PinV3(API.call(request_url)['data'])
+
+    def get_user_v3(self, user_id):
+        """GET - Gets data on a user using the /api_version/users/<user>/ endpoint
+
+        Parameters
+        ----------
+        user_id : string
+            The id of the user to retrieve.
+
+        Returns
+        -------
+        json_array
+            The response from Pinterest.
+
+        Raises
+        -------
+        RuntimeError
+            If the response code != 200, this exception will be raised along
+            with the return code of the request.
+
+        """
+        api_endpoint = "{}/{}/users/{}/".format(self.host, 'v3', user_id)
+        request_url = "{}?access_token={}".format(api_endpoint, self.v3_access_token)
+        # print(request_url)
+        # TODO: Make model
+        return API.call(request_url)['data']
+
+    def get_user_followers_v3(self, user_id, bookmark=None, page_size=100):
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_user_followers).')
+
+        api_endpoint = "{}/{}/users/{}/followers/".format(self.host, 'v3', user_id)
+        # print(api_endpoint)
+        if bookmark:
+            request_url = "{}?page_size={}&bookmark={}&access_token={}".format(api_endpoint, page_size, bookmark, self.v3_access_token)
+            return API.call(request_url)
+        else:
+            request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.UserFollowersV3(API.call(request_url), user_id, self.get_user_followers_v3)
+
+
+    def get_user_following_v3(self, user_id, bookmark=None, page_size=100):
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_user_following_v3).')
+
+        api_endpoint = "{}/{}/users/{}/following/".format(self.host, 'v3', user_id)
+        # print(api_endpoint)
+        if bookmark:
+            request_url = "{}?page_size={}&bookmark={}&access_token={}".format(api_endpoint, page_size, bookmark, self.v3_access_token)
+            return API.call(request_url)
+        else:
+            request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.UserFollowingV3(API.call(request_url), user_id, self.get_user_following_v3)
+
+
+    def get_board_v3(self, board_id):
+        """GET - Gets data on a user using the /api_version/boards/<board_id>/ endpoint
+
+        Parameters
+        ----------
+        board_id : string
+            The id of the board to retrieve.
+
+        Returns
+        -------
+        json_array
+            The response from Pinterest.
+
+        Raises
+        -------
+        PyPinContentNotFoundError
+            If the response code == 404, this exception will be raised along
+            with the return code of the request.
+        PyPinUnhandledResponseCodeError
+            For all other errors
+
+        """
+        api_endpoint = "{}/{}/boards/{}/".format(self.host, 'v3', board_id)
+        request_url = "{}?access_token={}".format(api_endpoint, self.v3_access_token)
+        # print(request_url)
+        # TODO: Make model
+        return API.call(request_url)['data']
+
+
+    def get_user_pins_v3(self, user_id, bookmark=None, page_size=100):
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_user_pins_v3).')
+
+        api_endpoint = "{}/{}/users/{}/pins/".format(self.host, 'v3', user_id)
+        # print(api_endpoint)
+        if bookmark:
+            request_url = "{}?page_size={}&bookmark={}&access_token={}".format(api_endpoint, page_size, bookmark, self.v3_access_token)
+            return API.call(request_url)
+        else:
+            request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.UserPinsV3(API.call(request_url), user_id, self.get_user_pins_v3)
+
+    def get_pin_comments_v3(self, pin_id, bookmark=None, page_size=100):
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_pin_comments_v3).')
+
+        api_endpoint = "{}/{}/pins/{}/comments/".format(self.host, 'v3', pin_id)
+        # print(api_endpoint)
+        if bookmark:
+            request_url = "{}?page_size={}&bookmark={}&access_token={}".format(api_endpoint, page_size, bookmark, self.v3_access_token)
+            return API.call(request_url)
+        else:
+            request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.PinCommentsV3(API.call(request_url), pin_id, self.get_pin_comments_v3)
