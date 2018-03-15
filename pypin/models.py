@@ -572,3 +572,13 @@ class PinCommentsV3(PinterestPaginatedModel):
         super().__init__(json_data, pin_id, api_paginate_function,
                          page_getter_func=lambda json: json.get('bookmark', None),
                          page_setter_func=set_page)
+
+class BookmarkPagination(PinterestPaginatedModel):
+
+    def __init__(self, json_data, pin_id, api_paginate_function):
+        def set_page(json, new_value):
+            json['bookmark'] = new_value
+
+        super().__init__(json_data, pin_id, api_paginate_function,
+                         page_getter_func=lambda json: json.get('bookmark', None),
+                         page_setter_func=set_page)

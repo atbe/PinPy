@@ -454,3 +454,17 @@ class API(object):
         else:
             request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
             return pypin.PinCommentsV3(API.call(request_url), pin_id, self.get_pin_comments_v3)
+
+
+    def get_similar_pins(self, pin_id, bookmark=None, page_size=100):
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_similar_pins).')
+
+        api_endpoint = f"{self.host}/v3/pins/{pin_id}/related/pin"
+        # print(api_endpoint)
+        if bookmark:
+            request_url = f"{api_endpoint}?page_size={page_size}&bookmark={bookmark}&access_token={self.v3_access_token}"
+            return API.call(request_url)
+        else:
+            request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.BookmarkPagination(API.call(request_url), pin_id, self.get_similar_pins)
