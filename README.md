@@ -1,6 +1,8 @@
 # pypin
 A simple Python client for <a href="https://developers.pinterest.com/docs/api/overview/" target="_blank">Pinterest API</a>
 
+[Click here for the documentation](https://atbe.github.io/pypin/docs/_build/html/#)
+
 >License: Apache License v2; see LICENSE file
 
 ## Installation
