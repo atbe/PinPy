@@ -1,130 +1,46 @@
 # pypin
 A simple Python client for <a href="https://developers.pinterest.com/docs/api/overview/" target="_blank">Pinterest API</a>
 
-Note:  Support python 3.0 +
+:Code:           https://github.com/atbe/pypin
+:License:        Apache License v2; see LICENSE file
 
-## How to use
+## Installation
 
-1. Grab a Pinterest access token from [Access token generator](https://developers.pinterest.com/tools/access_token/)
-2. Clone this package, Install it locally
+> Note: Supports Python 3.6+
+
+Clone this package, Install it locally
 ```
-git clone git@github.com:fuyi/pypin.git
+git clone git@github.com:atbe/pypin.git
 cd pypin
 pip install -e .
 ```
-3. Import module pypin from your code
-```
-from pypin import PyPin
-```
 
-4. Instantiate a PyPin object with your access token from step 1
-```
-client = PyPin('<your access token>')
-```
+## Basic Use
 
-5. Now you can use this client to interact with Pinterest API
-```
-client.get_me()
+Instantiating a client is simple:
+
+```pydocstring
+>>> import pypin
+
+# place your actual access tokens in the fields
+>>> client = pypin.API(access_token='', v3_access_token='')
+>>> client.get_me()
 ```
 
-## Feature TODO List
+## Advanced Usage
 
-* Get the authenticated user's Pinterest account info
+The client can interface with both the public `v1` API and the mobile `v3` API (which contains a lot more endpoints)
 
-```
-client.get_me()
-```
+### Checking a users followers
 
-* Get all of authenticated users's boards
+```pydocstring
+>>> import pypin
 
-```
-client.get_boards()
-```
-
-* Create a new board
-
-```
-client.create_board({'name': '<board name>'})
+# place your actual access tokens in the fields
+>>> client = pypin.API(access_token='', v3_access_token='')
+>>> followers = client.get_user_followers_v3('abeahmed2')
+>>> for follower in followers: print(follower['username'])
+nexusfool
 ```
 
-* Create a pin on a board, only support url, will add local image file support soon
-
-```
-client.create_pin({
-    'board': '<board name>',
-    'note': '<your note>',
-    'link': '<url to be posted>',
-    'image_url': '<image url to be posted>'
-})
-```
-
-* Get the pins that the authenticated user likes
-
-```
-client.get_likes()
-```
-
-* Get the authenticated user's followers
-
-```
-client.get_followers()
-```
-
-* Get the boards that the authenticated user follows
-
-```
-client.get_following_boards()
-```
-
-* Get the Pinterest users that the authenticated user follows
-
-```
-client.get_following_users()
-```
-
-* Get the interests that the authenticated user follows
-
-```
-client.get_following_interests()
-```
-
-* Follow a user
-
-```
-client.follow_user(user_name)
-```
-
-* Unfollow a user
-
-```
-client.unfollow_user(user_name)
-```
-
-* Follow a board
-
-
-```
-client.follow_board(board_id)
-```
-
-* Unfollow a board
-
-```
-client.unfollow_board(board_id)
-```
-
-* Get all of authenticated users's pins
-
-```
-client.get_pins()
-```
-
-TODO
-
-## Tech TODO List
-
-* Python2.7 compatibility
-* Add input data validator
-* Add returned fields
-* Add model layer
-* Add tests
+**More to come**
