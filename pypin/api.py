@@ -447,7 +447,6 @@ class API(object):
             raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_pin_comments_v3).')
 
         api_endpoint = "{}/{}/pins/{}/comments/".format(self.host, 'v3', pin_id)
-        # print(api_endpoint)
         if bookmark:
             request_url = "{}?page_size={}&bookmark={}&access_token={}".format(api_endpoint, page_size, bookmark, self.v3_access_token)
             return API.call(request_url)
@@ -460,12 +459,22 @@ class API(object):
         if not self.v3_access_token:
             raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_similar_pins).')
 
-        # ?&page_size=5&access_token=
         api_endpoint = f"{self.host}/v3/visual_search/flashlight/pin/{pin_id}/?x=0&y=0&w=1&h=1&"
-        # print(api_endpoint)
         if bookmark:
             request_url = f"{api_endpoint}page_size={page_size}&bookmark={bookmark}&access_token={self.v3_access_token}"
             return API.call(request_url)
         else:
             request_url = "{}page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
             return pypin.BookmarkPagination(API.call(request_url), pin_id, self.get_visually_similar_pins)
+
+    def get_user_boards(self, user_id, bookmark=None, page_size=100):
+        if not self.v3_access_token:
+            raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_users_boards).')
+
+        api_endpoint = f"{self.host}/v3/users/{user_id}/boards"
+        if bookmark:
+            request_url = f"{api_endpoint}/?page_size={page_size}&bookmark={bookmark}&access_token={self.v3_access_token}"
+            return API.call(request_url)
+        else:
+            request_url = "{}/?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
+            return pypin.BookmarkPagination(API.call(request_url), user_id, self.get_user_boards)
