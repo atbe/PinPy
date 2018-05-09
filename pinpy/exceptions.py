@@ -1,8 +1,8 @@
-class PyPinException(Exception):
+class PinPyException(Exception):
     def __init__(self, response=None):
         self.response = response
 
-class PyPinContentNotFoundError(PyPinException):
+class PinPyContentNotFoundError(PinPyException):
 
     def __str__(self):
         return '404 response from Pinterest. Content not found.'
@@ -10,7 +10,7 @@ class PyPinContentNotFoundError(PyPinException):
     def __repr__(self):
         return self.__str__()
 
-class PyPinUnhandledResponseCodeError(PyPinException):
+class PinPyUnhandledResponseCodeError(PinPyException):
 
     def __init__(self, response=None):
         super().__init__(response)

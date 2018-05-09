@@ -1,9 +1,9 @@
 """client script"""
-import pypin
+import pinpy
 import os
 from pprint import pprint
 
-api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
 
 # getting a pin using the experimental v3 of the api
 pin = api.get_public_pin_v3('521713938070463188')

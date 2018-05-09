@@ -1,4 +1,4 @@
-import pypin
+import pinpy
 import unittest
 import os
 
@@ -11,12 +11,12 @@ class TestBoardPinsV3Model(unittest.TestCase):
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
         self.board_pins = self.api.get_public_board_pins_v3('554857685279866446', page_size=100)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.board_pins, pypin.BoardPinsV3, msg='BoardPins should be type pypin.models.BoardPinsV3')
+        self.assertIsInstance(self.board_pins, pinpy.BoardPinsV3, msg='BoardPins should be type pypin.models.BoardPinsV3')
 
     def test_board_pins_id_getter(self):
         self.assertIsNotNone(self.board_pins.id, msg='BoardPins id should be initialized.')
@@ -32,12 +32,12 @@ class TestPinsV3Model(unittest.TestCase):
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
         self.pin = self.api.get_public_pin_v3('442830575846619266')
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.pin, pypin.PinV3, msg='pin should be type pypin.models.PinV3')
+        self.assertIsInstance(self.pin, pinpy.PinV3, msg='pin should be type pypin.models.PinV3')
 
     def test_board_pins_id_getter(self):
         self.assertIsNotNone(self.pin.id, msg='pin id should be initialized.')
@@ -47,12 +47,12 @@ class TestUserFollowersV3Model(unittest.TestCase):
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
         self.followers = self.api.get_user_followers_v3('hawkins6654', page_size=100)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.followers, pypin.UserFollowersV3, msg='pin should be type pypin.models.UserFollowersV3')
+        self.assertIsInstance(self.followers, pinpy.UserFollowersV3, msg='pin should be type pypin.models.UserFollowersV3')
 
     def test_status(self):
         self.assertEqual(self.followers.get('status'), "success", msg='status should be "success".')
@@ -69,12 +69,12 @@ class TestUserFollowingV3Model(unittest.TestCase):
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
         self.following = self.api.get_user_following_v3('hawkins6654', page_size=100)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.following, pypin.UserFollowingV3, msg='pin should be type pypin.models.UserFollowingV3')
+        self.assertIsInstance(self.following, pinpy.UserFollowingV3, msg='pin should be type pypin.models.UserFollowingV3')
 
     def test_status(self):
         self.assertEqual(self.following.get('status'), "success", msg='status should be "success".')
@@ -91,12 +91,12 @@ class TestUserPinsV3Model(unittest.TestCase):
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
         self.pins = self.api.get_user_pins_v3('hawkins6654', page_size=100)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.pins, pypin.UserPinsV3, msg='pin should be type pypin.models.UserPinsV3')
+        self.assertIsInstance(self.pins, pinpy.UserPinsV3, msg='pin should be type pypin.models.UserPinsV3')
 
     def test_status(self):
         self.assertEqual(self.pins.get('status'), "success", msg='status should be "success".')
@@ -113,7 +113,7 @@ class TestBoardV3(unittest.TestCase):
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
         self.id = '695384067402673738'
         self.board = self.api.get_board_v3(self.id)
 
@@ -126,7 +126,7 @@ class TestUserV3(unittest.TestCase):
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pypin.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
+        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
         self.id = '695384136122132328'
         self.user = self.api.get_user_v3(self.id)
 

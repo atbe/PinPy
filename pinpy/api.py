@@ -1,7 +1,7 @@
 import json
 import requests
 import urllib.request
-import pypin
+import pinpy
 
 class API(object):
     """Pinterest API"""
@@ -42,9 +42,9 @@ class API(object):
         if result.status_code in [200, 201]:
             return result.json()
         elif result.status_code == 404:
-            raise pypin.exceptions.PyPinContentNotFoundError(response=result)
+            raise pinpy.exceptions.PinPyContentNotFoundError(response=result)
         else:
-            raise pypin.exceptions.PyPinUnhandledResponseCodeError(response=result)
+            raise pinpy.exceptions.PinPyUnhandledResponseCodeError(response=result)
 
     def get_me(self):
         """Get the authenticated user's Pinterest account info"""
@@ -162,7 +162,7 @@ class API(object):
         request_url += "&fields={}".format(''.join(desired_attributes))
         request_url = request_url.rstrip('%2C')
         # print(request_url)
-        return pypin.User(API.call(request_url)['data'])
+        return pinpy.User(API.call(request_url)['data'])
 
     def create_board(self, board_info):
         """Create a new board
@@ -214,7 +214,7 @@ class API(object):
         request_url += "&fields={}".format(''.join(desired_attributes))
         request_url = request_url.rstrip('%2C')
         # print(request_url)
-        return pypin.Pin(API.call(request_url)['data'])
+        return pinpy.Pin(API.call(request_url)['data'])
 
     def get_public_board(self, board_id):
         """ Reference: https://developers.pinterest.com/docs/api/boards/
@@ -250,7 +250,7 @@ class API(object):
         json_data = API.call(request_url)['data']
         json_data['creator'] = self.get_user(json_data['creator']['id'])
 
-        return pypin.Board(json_data)
+        return pinpy.Board(json_data)
 
     def get_public_board_pins(self, board_id, cursor=None):
         """ Reference: https://developers.pinterest.com/docs/api/boards/
@@ -288,7 +288,7 @@ class API(object):
         if cursor:
             return API.call(request_url)
         else:
-            return pypin.BoardPins(API.call(request_url), board_id, self)
+            return pinpy.BoardPins(API.call(request_url), board_id, self)
 
     def get_public_board_pins_v3(self, board_id, bookmark=None, page_size=100):
         '''
@@ -311,7 +311,7 @@ class API(object):
             return API.call(request_url)
         else:
             request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
-            return pypin.BoardPinsV3(API.call(request_url), board_id, self)
+            return pinpy.BoardPinsV3(API.call(request_url), board_id, self)
 
 
     def get_public_pin_v3(self, pin_id):
@@ -344,7 +344,7 @@ class API(object):
         api_endpoint = "{}/{}/pins/{}/".format(self.host, 'v3', pin_id)
         request_url = "{}?access_token={}".format(api_endpoint, self.v3_access_token)
         # print(request_url)
-        return pypin.PinV3(API.call(request_url)['data'])
+        return pinpy.PinV3(API.call(request_url)['data'])
 
     def get_user_v3(self, user_id):
         """GET - Gets data on a user using the /api_version/users/<user>/ endpoint
@@ -383,7 +383,7 @@ class API(object):
             return API.call(request_url)
         else:
             request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
-            return pypin.UserFollowersV3(API.call(request_url), user_id, self.get_user_followers_v3)
+            return pinpy.UserFollowersV3(API.call(request_url), user_id, self.get_user_followers_v3)
 
 
     def get_user_following_v3(self, user_id, bookmark=None, page_size=100):
@@ -397,7 +397,7 @@ class API(object):
             return API.call(request_url)
         else:
             request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
-            return pypin.UserFollowingV3(API.call(request_url), user_id, self.get_user_following_v3)
+            return pinpy.UserFollowingV3(API.call(request_url), user_id, self.get_user_following_v3)
 
 
     def get_board_v3(self, board_id):
@@ -440,7 +440,7 @@ class API(object):
             return API.call(request_url)
         else:
             request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
-            return pypin.UserPinsV3(API.call(request_url), user_id, self.get_user_pins_v3)
+            return pinpy.UserPinsV3(API.call(request_url), user_id, self.get_user_pins_v3)
 
     def get_pin_comments_v3(self, pin_id, bookmark=None, page_size=100):
         if not self.v3_access_token:
@@ -452,7 +452,7 @@ class API(object):
             return API.call(request_url)
         else:
             request_url = "{}?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
-            return pypin.PinCommentsV3(API.call(request_url), pin_id, self.get_pin_comments_v3)
+            return pinpy.PinCommentsV3(API.call(request_url), pin_id, self.get_pin_comments_v3)
 
 
     def get_visually_similar_pins(self, pin_id, bookmark=None, page_size=100):
@@ -465,7 +465,7 @@ class API(object):
             return API.call(request_url)
         else:
             request_url = "{}page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
-            return pypin.BookmarkPagination(API.call(request_url), pin_id, self.get_visually_similar_pins)
+            return pinpy.BookmarkPagination(API.call(request_url), pin_id, self.get_visually_similar_pins)
 
     def get_user_boards(self, user_id, bookmark=None, page_size=100):
         if not self.v3_access_token:
@@ -477,4 +477,4 @@ class API(object):
             return API.call(request_url)
         else:
             request_url = "{}/?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
-            return pypin.BookmarkPagination(API.call(request_url), user_id, self.get_user_boards)
+            return pinpy.BookmarkPagination(API.call(request_url), user_id, self.get_user_boards)
