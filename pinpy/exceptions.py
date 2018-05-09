@@ -2,6 +2,7 @@ class PinPyException(Exception):
     def __init__(self, response=None):
         self.response = response
 
+
 class PinPyContentNotFoundError(PinPyException):
 
     def __str__(self):
@@ -9,6 +10,16 @@ class PinPyContentNotFoundError(PinPyException):
 
     def __repr__(self):
         return self.__str__()
+
+
+class PinPyRateLimitMetException(PinPyException):
+
+    def __str__(self):
+        return '429 response from Pinterest. Rate limit met.'
+
+    def __repr__(self):
+        return self.__str__()
+
 
 class PinPyUnhandledResponseCodeError(PinPyException):
 
