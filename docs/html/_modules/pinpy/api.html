@@ -1,0 +1,580 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>pinpy.api &#8212; PinPy 0.0.1 documentation</title>
+    <link rel="stylesheet" href="../../_static/alabaster.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    <script type="text/javascript" src="../../_static/documentation_options.js"></script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <h1>Source code for pinpy.api</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">requests</span>
+<span class="kn">import</span> <span class="nn">pinpy</span>
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+<span class="n">log</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">getLogger</span><span class="p">(</span><span class="s1">&#39;pinpy.api&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API">[docs]</a><span class="k">class</span> <span class="nc">API</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+	<span class="sd">&quot;&quot;&quot;Pinterest API&quot;&quot;&quot;</span>
+
+	<span class="n">TIMEOUT</span> <span class="o">=</span> <span class="mi">20</span>
+
+	<span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">access_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">v3_access_token</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+				 <span class="n">host</span><span class="o">=</span><span class="s1">&#39;https://api.pinterest.com&#39;</span><span class="p">,</span> <span class="n">api_root</span><span class="o">=</span><span class="s1">&#39;/v1&#39;</span><span class="p">,</span>
+				 <span class="n">wait_on_rate_limit</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">wait_on_rate_limit_notify</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Api instance Constructor</span>
+
+<span class="sd">		:param host:  url of the server of the rest api, default:&#39;api.twitter.com&#39;</span>
+<span class="sd">		:param api_root: suffix of the api version, default:&#39;/1.1&#39;</span>
+<span class="sd">		:param wait_on_rate_limit: If the api wait when it hits the rate limit, default:False</span>
+<span class="sd">		:param wait_on_rate_limit_notify: If the api print a notification when the rate limit is hit, default:False</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">access_token</span> <span class="o">=</span> <span class="n">access_token</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span> <span class="o">=</span> <span class="n">v3_access_token</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">=</span> <span class="n">api_root</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">=</span> <span class="n">host</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">wait_on_rate_limit</span> <span class="o">=</span> <span class="n">wait_on_rate_limit</span>
+		<span class="bp">self</span><span class="o">.</span><span class="n">wait_on_rate_limit_notify</span> <span class="o">=</span> <span class="n">wait_on_rate_limit_notify</span>
+
+<div class="viewcode-block" id="API.call"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.call">[docs]</a>	<span class="k">def</span> <span class="nf">call</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">url</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s1">&#39;get&#39;</span><span class="p">,</span> <span class="n">params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		API call to Pinterest</span>
+<span class="sd">			url: String, API endpoint with access token attached</span>
+<span class="sd">			method:  String, HTTP method, get post put delete</span>
+<span class="sd">			params: Dict, optional, supply necessary parameters</span>
+<span class="sd">			fields: String, optional, expected return fields,</span>
+<span class="sd">				will return default fields if not specified</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">sleep_time</span> <span class="o">=</span> <span class="mi">60</span>
+		<span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+			<span class="n">result</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">requests</span><span class="p">,</span> <span class="n">method</span><span class="p">)(</span><span class="n">url</span><span class="p">,</span> <span class="n">timeout</span><span class="o">=</span><span class="n">API</span><span class="o">.</span><span class="n">TIMEOUT</span><span class="p">,</span> <span class="n">data</span><span class="o">=</span><span class="n">params</span><span class="p">)</span>
+
+			<span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">status_code</span> <span class="ow">in</span> <span class="p">[</span><span class="mi">200</span><span class="p">,</span> <span class="mi">201</span><span class="p">]:</span>
+				<span class="k">return</span> <span class="n">result</span><span class="o">.</span><span class="n">json</span><span class="p">()</span>
+
+			<span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">404</span><span class="p">:</span>
+				<span class="k">raise</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">PinPyContentNotFoundError</span><span class="p">(</span><span class="n">response</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+
+			<span class="k">elif</span> <span class="n">result</span><span class="o">.</span><span class="n">status_code</span> <span class="o">==</span> <span class="mi">429</span><span class="p">:</span>
+				<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_on_rate_limit</span><span class="p">:</span>
+					<span class="k">raise</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">PinPyRateLimitMetException</span><span class="p">(</span><span class="n">response</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+
+				<span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">wait_on_rate_limit_notify</span><span class="p">:</span>
+					<span class="n">log</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Rate limit reached. Sleeping for: </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">sleep_time</span><span class="p">)</span>
+				<span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="n">sleep_time</span><span class="p">)</span>
+				<span class="n">sleep_time</span> <span class="o">*=</span> <span class="mi">2</span>
+			<span class="k">else</span><span class="p">:</span></div>
+				<span class="k">raise</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">exceptions</span><span class="o">.</span><span class="n">PinPyUnhandledResponseCodeError</span><span class="p">(</span><span class="n">response</span><span class="o">=</span><span class="n">result</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_me"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_me">[docs]</a>	<span class="k">def</span> <span class="nf">get_me</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">		Get the authenticated user&#39;s Pinterest account info</span>
+
+<span class="sd">		:return: User profile json object.</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_likes"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_likes">[docs]</a>	<span class="k">def</span> <span class="nf">get_likes</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Get the pins that the authenticated user likes&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/likes/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_followers"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_followers">[docs]</a>	<span class="k">def</span> <span class="nf">get_followers</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Get the authenticated user&#39;s followers&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/followers/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_following_boards"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_following_boards">[docs]</a>	<span class="k">def</span> <span class="nf">get_following_boards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Get the boards that the authenticated user follows&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/following/boards/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_following_users"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_following_users">[docs]</a>	<span class="k">def</span> <span class="nf">get_following_users</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Get the Pinterest users that the authenticated user follows&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/following/users/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_following_interests"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_following_interests">[docs]</a>	<span class="k">def</span> <span class="nf">get_following_interests</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Get the interests that the authenticated user follows&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/following/interests/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.follow_user"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.follow_user">[docs]</a>	<span class="k">def</span> <span class="nf">follow_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_name</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Follow a user</span>
+<span class="sd">				parameters:</span>
+<span class="sd">								 name: &#39;user_name&#39;,</span>
+<span class="sd">								 description: &#39;user name&#39;</span>
+<span class="sd">				&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/following/users/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="s1">&#39;user&#39;</span><span class="p">:</span> <span class="n">user_name</span> <span class="p">})</span>
+
+
+<div class="viewcode-block" id="API.unfollow_user"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.unfollow_user">[docs]</a>	<span class="k">def</span> <span class="nf">unfollow_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_name</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Unfollow a user</span>
+<span class="sd">				parameters:</span>
+<span class="sd">								 name: &#39;user_name&#39;,</span>
+<span class="sd">								 description: &#39;user name&#39;</span>
+<span class="sd">				&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/following/users/&#39;</span> <span class="o">+</span> <span class="n">user_name</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.follow_board"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.follow_board">[docs]</a>	<span class="k">def</span> <span class="nf">follow_board</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Follow a board</span>
+<span class="sd">		parameters:</span>
+<span class="sd">			 name: &#39;board_id&#39;,</span>
+<span class="sd">			 description: &#39;board name&#39;</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/following/boards/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="s1">&#39;board&#39;</span><span class="p">:</span> <span class="n">board_id</span> <span class="p">})</span>
+
+<div class="viewcode-block" id="API.unfollow_board"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.unfollow_board">[docs]</a>	<span class="k">def</span> <span class="nf">unfollow_board</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Unfollow a board</span>
+<span class="sd">		parameters:</span>
+<span class="sd">			 name: &#39;board_id&#39;,</span>
+<span class="sd">			 description: &#39;board name&#39;</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/following/boards/&#39;</span> <span class="o">+</span> <span class="n">board_id</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;delete&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_my_pins"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_my_pins">[docs]</a>	<span class="k">def</span> <span class="nf">get_my_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Get all of authenticated users&#39;s pins&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/pins/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_boards"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_boards">[docs]</a>	<span class="k">def</span> <span class="nf">get_boards</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Get all of authenticated users&#39;s boards&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/me/boards/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;get&#39;</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_user"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_user">[docs]</a>	<span class="k">def</span> <span class="nf">get_user</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;GET - Gets data on a user using the /api_version/users/&lt;user&gt;/ endpoint</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		user_id : string</span>
+<span class="sd">			The id of the user to retrieve.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		json_array</span>
+<span class="sd">			The response from Pinterest.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		-------</span>
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If the response code != 200, this exception will be raised along</span>
+<span class="sd">			with the return code of the request.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span> <span class="s2">&quot;/users/</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">user_id</span><span class="p">)</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;username&#39;</span><span class="p">,</span> <span class="s1">&#39;first_name&#39;</span><span class="p">,</span> <span class="s1">&#39;last_name&#39;</span><span class="p">,</span> <span class="s1">&#39;bio&#39;</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">,</span> <span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">]</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">atr</span> <span class="o">+</span> <span class="s1">&#39;%2C&#39;</span> <span class="k">for</span> <span class="n">atr</span> <span class="ow">in</span> <span class="n">desired_attributes</span><span class="p">]</span>
+		<span class="n">request_url</span> <span class="o">+=</span> <span class="s2">&quot;&amp;fields=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">desired_attributes</span><span class="p">))</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">request_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;%2C&#39;</span><span class="p">)</span>
+		<span class="c1"># print(request_url)</span></div>
+		<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">User</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="API.create_board"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.create_board">[docs]</a>	<span class="k">def</span> <span class="nf">create_board</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_info</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Create a new board</span>
+<span class="sd">		parameters:</span>
+<span class="sd">			 name: &#39;board name&#39;,</span>
+<span class="sd">			 description: &#39;Board description, optional&#39;</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/boards/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">board_info</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.create_pin"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.create_pin">[docs]</a>	<span class="k">def</span> <span class="nf">create_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_info</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;Create a pin on a board</span>
+<span class="sd">		pinInfo structure:</span>
+<span class="sd">			 board: &#39;&lt;username&gt;/&lt;board_name&gt;&#39; OR &#39;&lt;board_id&gt;&#39;,</span>
+<span class="sd">			 note: &#39;My note&#39;</span>
+<span class="sd">			 link: &#39;https://www.google.com&#39;,</span>
+<span class="sd">			 image_url: &#39;http://marketingland.com/pinterest-logo-white-1920.png&#39;</span>
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span><span class="s1">&#39;/pins/&#39;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">,</span> <span class="s1">&#39;post&#39;</span><span class="p">,</span> <span class="n">pin_info</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_public_pin"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_public_pin">[docs]</a>	<span class="k">def</span> <span class="nf">get_public_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;GET - Gets data on a pin using the /v1/pins/&lt;pin&gt;/ endpoint</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		pin_id : string</span>
+<span class="sd">			The id of the pin to retrieve.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		json_array</span>
+<span class="sd">			The response from Pinterest.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		-------</span>
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If the response code != 200, this exception will be raised along</span>
+<span class="sd">			with the return code of the request.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span> <span class="s2">&quot;/pins/</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">pin_id</span><span class="p">)</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;attribution&#39;</span><span class="p">,</span> <span class="s1">&#39;board&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">,</span> <span class="s1">&#39;creator&#39;</span><span class="p">,</span>
+							  <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="s1">&#39;media&#39;</span><span class="p">,</span> <span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="s1">&#39;note&#39;</span><span class="p">,</span> <span class="s1">&#39;original_link&#39;</span><span class="p">,</span> <span class="s1">&#39;url&#39;</span><span class="p">]</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">atr</span> <span class="o">+</span> <span class="s1">&#39;%2C&#39;</span> <span class="k">for</span> <span class="n">atr</span> <span class="ow">in</span> <span class="n">desired_attributes</span><span class="p">]</span>
+		<span class="n">request_url</span> <span class="o">+=</span> <span class="s2">&quot;&amp;fields=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">desired_attributes</span><span class="p">))</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">request_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;%2C&#39;</span><span class="p">)</span>
+		<span class="c1"># print(request_url)</span></div>
+		<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">Pin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="API.get_public_board"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_public_board">[docs]</a>	<span class="k">def</span> <span class="nf">get_public_board</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Reference: https://developers.pinterest.com/docs/api/boards/</span>
+
+<span class="sd">		GET - Gets all pins on a board using the /v1/boards/&lt;board_spec:board&gt;/pins/ endpoint</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		board_id : string</span>
+<span class="sd">			The id of the board to retrieve.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		json_array</span>
+<span class="sd">			The response from Pinterest.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		-------</span>
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If the response code != 200, this exception will be raised along</span>
+<span class="sd">			with the return code of the request.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span> <span class="s2">&quot;/boards/</span><span class="si">{:s}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">board_id</span><span class="p">)</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">api_endpoint</span> <span class="o">+</span> <span class="s1">&#39;?access_token=&#39;</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">,</span> <span class="s1">&#39;creator&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span> <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="s1">&#39;url&#39;</span><span class="p">]</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">atr</span> <span class="o">+</span> <span class="s1">&#39;%2C&#39;</span> <span class="k">for</span> <span class="n">atr</span> <span class="ow">in</span> <span class="n">desired_attributes</span><span class="p">]</span>
+		<span class="n">request_url</span> <span class="o">+=</span> <span class="s2">&quot;&amp;fields=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">desired_attributes</span><span class="p">))</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">request_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;%2C&#39;</span><span class="p">)</span>
+		<span class="c1"># print(request_url)</span>
+
+		<span class="c1"># build the user object, makes one call to API</span>
+		<span class="n">json_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+		<span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;creator&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;creator&#39;</span><span class="p">][</span><span class="s1">&#39;id&#39;</span><span class="p">])</span>
+</div>
+		<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">Board</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_public_board_pins"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_public_board_pins">[docs]</a>	<span class="k">def</span> <span class="nf">get_public_board_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_id</span><span class="p">,</span> <span class="n">cursor</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot; Reference: https://developers.pinterest.com/docs/api/boards/</span>
+
+<span class="sd">		GET - Gets all pins on a board using the /v1/boards/&lt;board_spec:board&gt;/pins/ endpoint</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		board_id : string</span>
+<span class="sd">			The id of the board to retrieve.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		json_array</span>
+<span class="sd">			The response from Pinterest.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		-------</span>
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If the response code != 200, this exception will be raised along</span>
+<span class="sd">			with the return code of the request.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;attribution&#39;</span><span class="p">,</span> <span class="s1">&#39;board&#39;</span><span class="p">,</span> <span class="s1">&#39;color&#39;</span><span class="p">,</span> <span class="s1">&#39;counts&#39;</span><span class="p">,</span> <span class="s1">&#39;created_at&#39;</span><span class="p">,</span> <span class="s1">&#39;creator&#39;</span><span class="p">,</span>
+							  <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;image&#39;</span><span class="p">,</span> <span class="s1">&#39;link&#39;</span><span class="p">,</span> <span class="s1">&#39;media&#39;</span><span class="p">,</span> <span class="s1">&#39;metadata&#39;</span><span class="p">,</span> <span class="s1">&#39;note&#39;</span><span class="p">,</span> <span class="s1">&#39;original_link&#39;</span><span class="p">,</span> <span class="s1">&#39;url&#39;</span><span class="p">]</span>
+		<span class="n">desired_attributes</span> <span class="o">=</span> <span class="p">[</span><span class="n">atr</span> <span class="o">+</span> <span class="s1">&#39;%2C&#39;</span> <span class="k">for</span> <span class="n">atr</span> <span class="ow">in</span> <span class="n">desired_attributes</span><span class="p">]</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">host</span> <span class="o">+</span> <span class="bp">self</span><span class="o">.</span><span class="n">api_root</span> <span class="o">+</span> <span class="s2">&quot;/boards/</span><span class="si">{:s}</span><span class="s2">/pins&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">board_id</span><span class="p">))</span>
+		<span class="k">if</span> <span class="n">cursor</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?cursor=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">cursor</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">access_token</span><span class="p">)</span>
+		<span class="n">request_url</span> <span class="o">+=</span> <span class="s2">&quot;&amp;fields=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s1">&#39;&#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">desired_attributes</span><span class="p">))</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="n">request_url</span><span class="o">.</span><span class="n">rstrip</span><span class="p">(</span><span class="s1">&#39;%2C&#39;</span><span class="p">)</span>
+		<span class="c1"># print(request_url)</span>
+		<span class="k">if</span> <span class="n">cursor</span><span class="p">:</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">BoardPins</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">board_id</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_public_board_pins_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_public_board_pins_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_public_board_pins_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_id</span><span class="p">,</span> <span class="n">bookmark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+		<span class="sd">&#39;&#39;&#39;</span>
+<span class="sd">		EXPERIMENTAL</span>
+
+<span class="sd">		Uses the API v3 endpoint to get the pins on a board. More flexible than v1 because of higher request</span>
+<span class="sd">		limits and the ability to return up to 250 pins per request.</span>
+
+<span class="sd">		:param board_id:</span>
+<span class="sd">		:param bookmark: Bookmark of the request for pagination.</span>
+<span class="sd">		:return:</span>
+<span class="sd">		&#39;&#39;&#39;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_public_board_pins_v3).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/boards/</span><span class="si">{}</span><span class="s2">/pins/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">board_id</span><span class="p">)</span>
+		<span class="c1"># print(api_endpoint)</span>
+		<span class="k">if</span> <span class="n">bookmark</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;bookmark=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="n">bookmark</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">BoardPinsV3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">board_id</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="API.get_public_pin_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_public_pin_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_public_pin_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;GET - Gets data on a pin using the /v3/pins/&lt;pin&gt;/ endpoint</span>
+
+<span class="sd">		EXPERIMENTAL</span>
+
+<span class="sd">		Uses the API v3 endpoint to get the pin. More flexible than v1 because of higher request limits and more data.</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		pin_id : string</span>
+<span class="sd">			The id of the pin to retrieve.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		json_array</span>
+<span class="sd">			The response from Pinterest.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		-------</span>
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If the response code != 200, this exception will be raised along</span>
+<span class="sd">			with the return code of the request.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_public_board_pins_v3).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/pins/</span><span class="si">{}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">)</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+		<span class="c1"># print(request_url)</span></div>
+		<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">PinV3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+
+<div class="viewcode-block" id="API.get_user_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_user_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_user_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;GET - Gets data on a user using the /api_version/users/&lt;user&gt;/ endpoint</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		user_id : string</span>
+<span class="sd">			The id of the user to retrieve.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		json_array</span>
+<span class="sd">			The response from Pinterest.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		-------</span>
+<span class="sd">		RuntimeError</span>
+<span class="sd">			If the response code != 200, this exception will be raised along</span>
+<span class="sd">			with the return code of the request.</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/users/</span><span class="si">{}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+		<span class="c1"># print(request_url)</span>
+		<span class="c1"># TODO: Make model</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+
+<div class="viewcode-block" id="API.get_user_followers_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_user_followers_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_user_followers_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">bookmark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_user_followers).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/users/</span><span class="si">{}</span><span class="s2">/followers/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+		<span class="c1"># print(api_endpoint)</span>
+		<span class="k">if</span> <span class="n">bookmark</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;bookmark=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="n">bookmark</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">UserFollowersV3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">user_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_followers_v3</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="API.get_user_following_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_user_following_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_user_following_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">bookmark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_user_following_v3).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/users/</span><span class="si">{}</span><span class="s2">/following/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+		<span class="c1"># print(api_endpoint)</span>
+		<span class="k">if</span> <span class="n">bookmark</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;bookmark=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="n">bookmark</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">UserFollowingV3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">user_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_following_v3</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="API.get_board_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_board_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_board_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">board_id</span><span class="p">):</span>
+		<span class="sd">&quot;&quot;&quot;GET - Gets data on a user using the /api_version/boards/&lt;board_id&gt;/ endpoint</span>
+
+<span class="sd">		Parameters</span>
+<span class="sd">		----------</span>
+<span class="sd">		board_id : string</span>
+<span class="sd">			The id of the board to retrieve.</span>
+
+<span class="sd">		Returns</span>
+<span class="sd">		-------</span>
+<span class="sd">		json_array</span>
+<span class="sd">			The response from Pinterest.</span>
+
+<span class="sd">		Raises</span>
+<span class="sd">		-------</span>
+<span class="sd">		PyPinContentNotFoundError</span>
+<span class="sd">			If the response code == 404, this exception will be raised along</span>
+<span class="sd">			with the return code of the request.</span>
+<span class="sd">		PyPinUnhandledResponseCodeError</span>
+<span class="sd">			For all other errors</span>
+
+<span class="sd">		&quot;&quot;&quot;</span>
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/boards/</span><span class="si">{}</span><span class="s2">/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">board_id</span><span class="p">)</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+		<span class="c1"># print(request_url)</span>
+		<span class="c1"># TODO: Make model</span></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+
+
+<div class="viewcode-block" id="API.get_user_pins_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_user_pins_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_user_pins_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">bookmark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_user_pins_v3).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/users/</span><span class="si">{}</span><span class="s2">/pins/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">user_id</span><span class="p">)</span>
+		<span class="c1"># print(api_endpoint)</span>
+		<span class="k">if</span> <span class="n">bookmark</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;bookmark=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="n">bookmark</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">UserPinsV3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">user_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_pins_v3</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_pin_comments_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_pin_comments_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_pin_comments_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">,</span> <span class="n">bookmark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_pin_comments_v3).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/</span><span class="si">{}</span><span class="s2">/pins/</span><span class="si">{}</span><span class="s2">/comments/&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">host</span><span class="p">,</span> <span class="s1">&#39;v3&#39;</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">)</span>
+		<span class="k">if</span> <span class="n">bookmark</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;bookmark=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="n">bookmark</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">?page_size=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">PinCommentsV3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">pin_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_pin_comments_v3</span><span class="p">)</span>
+
+
+<div class="viewcode-block" id="API.get_visually_similar_pins"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_visually_similar_pins">[docs]</a>	<span class="k">def</span> <span class="nf">get_visually_similar_pins</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">,</span> <span class="n">bookmark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_similar_pins).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{self.host}</span><span class="s2">/v3/visual_search/flashlight/pin/</span><span class="si">{pin_id}</span><span class="s2">/?x=0&amp;y=0&amp;w=1&amp;h=1&amp;&quot;</span>
+		<span class="k">if</span> <span class="n">bookmark</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{api_endpoint}</span><span class="s2">page_size=</span><span class="si">{page_size}</span><span class="s2">&amp;bookmark=</span><span class="si">{bookmark}</span><span class="s2">&amp;access_token=</span><span class="si">{self.v3_access_token}</span><span class="s2">&quot;</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">page_size=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">BookmarkPagination</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">pin_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_visually_similar_pins</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_user_boards"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_user_boards">[docs]</a>	<span class="k">def</span> <span class="nf">get_user_boards</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">bookmark</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_size</span><span class="o">=</span><span class="mi">100</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_users_boards).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{self.host}</span><span class="s2">/v3/users/</span><span class="si">{user_id}</span><span class="s2">/boards&quot;</span>
+		<span class="k">if</span> <span class="n">bookmark</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{api_endpoint}</span><span class="s2">/?page_size=</span><span class="si">{page_size}</span><span class="s2">&amp;bookmark=</span><span class="si">{bookmark}</span><span class="s2">&amp;access_token=</span><span class="si">{self.v3_access_token}</span><span class="s2">&quot;</span>
+			<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)</span>
+		<span class="k">else</span><span class="p">:</span>
+			<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/?page_size=</span><span class="si">{}</span><span class="s2">&amp;access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="n">page_size</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div>
+			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">BookmarkPagination</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">user_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_user_boards</span><span class="p">)</span>
+
+<div class="viewcode-block" id="API.get_pin"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_pin">[docs]</a>	<span class="k">def</span> <span class="nf">get_pin</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">):</span>
+		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
+			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_users_boards).&#39;</span><span class="p">)</span>
+
+		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{self.host}</span><span class="s2">/v3/pins/</span><span class="si">{pin_id}</span><span class="s2">&quot;</span>
+		<span class="n">request_url</span> <span class="o">=</span> <span class="s2">&quot;</span><span class="si">{}</span><span class="s2">/?access_token=</span><span class="si">{}</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">api_endpoint</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">)</span></div></div>
+		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper"><div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    </div>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &copy;2018, Ibrahim Ahmed.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 1.7.1</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.10</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
