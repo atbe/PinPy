@@ -493,3 +493,11 @@ class API(object):
 		else:
 			request_url = "{}/?page_size={}&access_token={}".format(api_endpoint, page_size, self.v3_access_token)
 			return pinpy.BookmarkPagination(self.call(request_url), user_id, self.get_user_boards)
+
+	def get_pin(self, pin_id):
+		if not self.v3_access_token:
+			raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_users_boards).')
+
+		api_endpoint = f"{self.host}/v3/pins/{pin_id}"
+		request_url = "{}/?access_token={}".format(api_endpoint, self.v3_access_token)
+		return self.call(request_url)['data']
