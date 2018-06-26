@@ -23,11 +23,12 @@ class PinPyRateLimitMetException(PinPyException):
 
 class PinPyUnhandledResponseCodeError(PinPyException):
 
-    def __init__(self, response=None):
+    def __init__(self, response=None, endpoint=None):
         super().__init__(response)
+        self.endpoint = endpoint
 
     def __str__(self):
-        return 'Unhandled response code returned from Pinterest = {}'.format(self.response.status_code)
+        return f"Unhandled response code returned from Pinterest = {self.response.status_code} while hitting:\n{self.endpoint}"
 
     def __repr__(self):
-        return "{}:\nStatus Code={}".format(self.__str__str(), self.response.status_code)
+        return "{}:\nStatus Code={}".format(self.__str__(), self.response.status_code)

@@ -6,41 +6,25 @@ import os
 These tests are meant for the models of the api/v3 endpoints. They are in no way the same as the api/v1 responses.
 '''
 
+
 class TestBoardPinsV3Model(unittest.TestCase):
 
     def setUp(self):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
         self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
-        self.board_pins = self.api.get_public_board_pins_v3('554857685279866446', page_size=100)
+        self.board_pins = self.api.get_public_board_pins_v3('554857685279866446', page_size=10)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.board_pins, pinpy.BoardPinsV3, msg='BoardPins should be type pypin.models.BoardPinsV3')
-
-    def test_board_pins_id_getter(self):
-        self.assertIsNotNone(self.board_pins.id, msg='BoardPins id should be initialized.')
+        self.assertIsInstance(self.board_pins, pinpy.BookmarkPagination, msg='BoardPins should be type pypin.models.BookmarkPagination')
 
     def test_board_pins_iter(self):
         for i, pin in enumerate(self.board_pins):
-            if i == 101:
+            if i == 11:
                 return
-        self.fail("Use a different sample board! Not enough pins to test.")
+        self.fail("Use a different sample board! Not enough pins to test")
 
-class TestPinsV3Model(unittest.TestCase):
-
-    def setUp(self):
-        # TODO: Don't use a live pin request between each test, store in cassete and make sure it
-        # matches the one that comes back from the api in another test so we only make one request.
-        self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
-        self.pin = self.api.get_public_pin_v3('442830575846619266')
-
-    def test_constructor(self):
-        # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.pin, pinpy.PinV3, msg='pin should be type pypin.models.PinV3')
-
-    def test_board_pins_id_getter(self):
-        self.assertIsNotNone(self.pin.id, msg='pin id should be initialized.')
 
 class TestUserFollowersV3Model(unittest.TestCase):
 
@@ -52,10 +36,10 @@ class TestUserFollowersV3Model(unittest.TestCase):
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.followers, pinpy.UserFollowersV3, msg='pin should be type pypin.models.UserFollowersV3')
+        self.assertIsInstance(self.followers, pinpy.BookmarkPagination, msg='pin should be type pypin.models.UserFollowersV3')
 
     def test_status(self):
-        self.assertEqual(self.followers.get('status'), "success", msg='status should be "success".')
+        self.assertEqual(self.followers.status, "success", msg='status should be "success".')
 
     def test_paginated(self):
         for i, follower in enumerate(self.followers):
@@ -63,6 +47,7 @@ class TestUserFollowersV3Model(unittest.TestCase):
                 return
 
         self.fail("Use a different sample user! Not enough followers to test.")
+
 
 class TestUserFollowingV3Model(unittest.TestCase):
 
@@ -74,10 +59,7 @@ class TestUserFollowingV3Model(unittest.TestCase):
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.following, pinpy.UserFollowingV3, msg='pin should be type pypin.models.UserFollowingV3')
-
-    def test_status(self):
-        self.assertEqual(self.following.get('status'), "success", msg='status should be "success".')
+        self.assertIsInstance(self.following, pinpy.BookmarkPagination, msg='pin should be type pypin.models.UserFollowingV3')
 
     def test_paginated(self):
         for i, user in enumerate(self.following):
@@ -85,6 +67,7 @@ class TestUserFollowingV3Model(unittest.TestCase):
                 return
 
         self.fail("Use a different sample user! Not enough following to test.")
+
 
 class TestUserPinsV3Model(unittest.TestCase):
 
@@ -96,10 +79,10 @@ class TestUserPinsV3Model(unittest.TestCase):
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
-        self.assertIsInstance(self.pins, pinpy.UserPinsV3, msg='pin should be type pypin.models.UserPinsV3')
+        self.assertIsInstance(self.pins, pinpy.BookmarkPagination, msg='pin should be type pypin.models.UserPinsV3')
 
     def test_status(self):
-        self.assertEqual(self.pins.get('status'), "success", msg='status should be "success".')
+        self.assertEqual(self.pins.status, "success", msg='status should be "success".')
 
     def test_paginated(self):
         for i, user in enumerate(self.pins):
@@ -107,6 +90,7 @@ class TestUserPinsV3Model(unittest.TestCase):
                 return
 
         self.fail("Use a different sample user! Not enough pins to test.")
+
 
 class TestBoardV3(unittest.TestCase):
 
@@ -120,6 +104,7 @@ class TestBoardV3(unittest.TestCase):
     def test_board_pins_id_getter(self):
         self.assertEqual(self.board.get('id'), self.id, msg='id of board collected should be the one requested')
         self.assertIsNotNone(self.board.get('id'), msg='pin id should be initialized.')
+
 
 class TestUserV3(unittest.TestCase):
 
