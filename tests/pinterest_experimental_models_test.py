@@ -32,7 +32,7 @@ class TestUserFollowersV3Model(unittest.TestCase):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
         self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
-        self.followers = self.api.get_user_followers_v3('hawkins6654', page_size=100)
+        self.followers = self.api.get_user_followers_v3('hawkins6654', page_size=10)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
@@ -43,7 +43,7 @@ class TestUserFollowersV3Model(unittest.TestCase):
 
     def test_paginated(self):
         for i, follower in enumerate(self.followers):
-            if i == 101:
+            if i == 11:
                 return
 
         self.fail("Use a different sample user! Not enough followers to test.")
@@ -55,7 +55,7 @@ class TestUserFollowingV3Model(unittest.TestCase):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
         self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
-        self.following = self.api.get_user_following_v3('hawkins6654', page_size=100)
+        self.following = self.api.get_user_following_v3('hawkins6654', page_size=10)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
@@ -63,7 +63,7 @@ class TestUserFollowingV3Model(unittest.TestCase):
 
     def test_paginated(self):
         for i, user in enumerate(self.following):
-            if i == 101: # trigger the pagination
+            if i == 11: # trigger the pagination
                 return
 
         self.fail("Use a different sample user! Not enough following to test.")
@@ -75,7 +75,7 @@ class TestUserPinsV3Model(unittest.TestCase):
         # TODO: Don't use a live pin request between each test, store in cassete and make sure it
         # matches the one that comes back from the api in another test so we only make one request.
         self.api = pinpy.API(os.environ['PIN_TOKEN'], os.environ['PIN_V3_TOKEN'])
-        self.pins = self.api.get_user_pins_v3('hawkins6654', page_size=100)
+        self.pins = self.api.get_user_pins_v3('hawkins6654', page_size=10)
 
     def test_constructor(self):
         # TODO: Remove the hardcoded sample Pin and use some sort of cassettes.
@@ -86,7 +86,7 @@ class TestUserPinsV3Model(unittest.TestCase):
 
     def test_paginated(self):
         for i, user in enumerate(self.pins):
-            if i == 101:
+            if i == 11:
                 return
 
         self.fail("Use a different sample user! Not enough pins to test.")
