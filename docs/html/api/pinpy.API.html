@@ -15,7 +15,7 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="Board" href="pinpy.Board.html" />
+    <link rel="next" title="BookmarkPagination" href="pinpy.BookmarkPagination.html" />
     <link rel="prev" title="Welcome to PinPy’s documentation!" href="../index.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -58,22 +58,22 @@
 </colgroup>
 <tbody valign="top">
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.call" title="pinpy.API.call"><code class="xref py py-obj docutils literal notranslate"><span class="pre">call</span></code></a>(url[,&nbsp;method,&nbsp;params])</td>
-<td>API call to Pinterest         url: String, API endpoint with access token attached         method:  String, HTTP method, get post put delete         params: Dict, optional, supply necessary parameters         fields: String, optional, expected return fields,                 will return default fields if not specified</td>
+<td>API call to Pinterest</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.create_board" title="pinpy.API.create_board"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_board</span></code></a>(board_info)</td>
-<td>Create a new board parameters:          name: ‘board name’,          description: ‘Board description, optional’</td>
+<td>Create a new board</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.create_pin" title="pinpy.API.create_pin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_pin</span></code></a>(pin_info)</td>
-<td>Create a pin on a board pinInfo structure:          board: ‘&lt;username&gt;/&lt;board_name&gt;’ OR ‘&lt;board_id&gt;’,          note: ‘My note’          link: ‘<a class="reference external" href="https://www">https://www</a>.</td>
+<td>Create a pin on a board</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.follow_board" title="pinpy.API.follow_board"><code class="xref py py-obj docutils literal notranslate"><span class="pre">follow_board</span></code></a>(board_id)</td>
-<td>Follow a board parameters:          name: ‘board_id’,          description: ‘board name’</td>
+<td>Follow a board</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.follow_user" title="pinpy.API.follow_user"><code class="xref py py-obj docutils literal notranslate"><span class="pre">follow_user</span></code></a>(user_name)</td>
-<td>Follow a user parameters:                                  name: ‘user_name’,                                  description: ‘user name’</td>
+<td>Follow a user</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_board_v3" title="pinpy.API.get_board_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_board_v3</span></code></a>(board_id)</td>
-<td>GET - Gets data on a user using the /api_version/boards/&lt;board_id&gt;/ endpoint</td>
+<td>Collect a board from Pinterest</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_boards" title="pinpy.API.get_boards"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_boards</span></code></a>()</td>
 <td>Get all of authenticated users’s boards</td>
@@ -91,7 +91,7 @@
 <td>Get the Pinterest users that the authenticated user follows</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_likes" title="pinpy.API.get_likes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_likes</span></code></a>()</td>
-<td>Get the pins that the authenticated user likes</td>
+<td>Get the pins that the authenticated users likes</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_me" title="pinpy.API.get_me"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_me</span></code></a>()</td>
 <td>Get the authenticated user’s Pinterest account info</td>
@@ -100,52 +100,52 @@
 <td>Get all of authenticated users’s pins</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_pin" title="pinpy.API.get_pin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pin</span></code></a>(pin_id)</td>
-<td></td>
+<td>Collect a single pin</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_pin_comments_v3" title="pinpy.API.get_pin_comments_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_pin_comments_v3</span></code></a>(pin_id[,&nbsp;bookmark,&nbsp;…])</td>
-<td></td>
+<td>Collect the comments made on a Pin</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_public_board" title="pinpy.API.get_public_board"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_public_board</span></code></a>(board_id)</td>
-<td>Reference: <a class="reference external" href="https://developers">https://developers</a>.</td>
+<td>Gets public board data</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_public_board_pins" title="pinpy.API.get_public_board_pins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_public_board_pins</span></code></a>(board_id[,&nbsp;cursor])</td>
-<td>Reference: <a class="reference external" href="https://developers">https://developers</a>.</td>
+<td>Gets all pins on a board (paginated)</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_public_board_pins_v3" title="pinpy.API.get_public_board_pins_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_public_board_pins_v3</span></code></a>(board_id[,&nbsp;…])</td>
-<td>EXPERIMENTAL</td>
+<td>Collects the pins in a board</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_public_pin" title="pinpy.API.get_public_pin"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_public_pin</span></code></a>(pin_id)</td>
-<td>GET - Gets data on a pin using the /v1/pins/&lt;pin&gt;/ endpoint</td>
+<td>Gets a single pin</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_public_pin_v3" title="pinpy.API.get_public_pin_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_public_pin_v3</span></code></a>(pin_id)</td>
-<td>GET - Gets data on a pin using the /v3/pins/&lt;pin&gt;/ endpoint</td>
+<td>Collect a single Pin</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_user" title="pinpy.API.get_user"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user</span></code></a>(user_id)</td>
-<td>GET - Gets data on a user using the /api_version/users/&lt;user&gt;/ endpoint</td>
+<td>Gets specific users profile</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_user_boards" title="pinpy.API.get_user_boards"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_boards</span></code></a>(user_id[,&nbsp;bookmark,&nbsp;page_size])</td>
-<td></td>
+<td>Collect a users boards</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_user_followers_v3" title="pinpy.API.get_user_followers_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_followers_v3</span></code></a>(user_id[,&nbsp;bookmark,&nbsp;…])</td>
-<td></td>
+<td>Collect a users followers</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_user_following_v3" title="pinpy.API.get_user_following_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_following_v3</span></code></a>(user_id[,&nbsp;bookmark,&nbsp;…])</td>
-<td></td>
+<td>Collect the users someone follows</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_user_pins_v3" title="pinpy.API.get_user_pins_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_pins_v3</span></code></a>(user_id[,&nbsp;bookmark,&nbsp;page_size])</td>
-<td></td>
+<td>Collect a users pins</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.get_user_v3" title="pinpy.API.get_user_v3"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_user_v3</span></code></a>(user_id)</td>
-<td>GET - Gets data on a user using the /api_version/users/&lt;user&gt;/ endpoint</td>
+<td>Collect a particular users profile</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.get_visually_similar_pins" title="pinpy.API.get_visually_similar_pins"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_visually_similar_pins</span></code></a>(pin_id[,&nbsp;…])</td>
-<td></td>
+<td>Collect visually similar Pins of a particular Pin.</td>
 </tr>
 <tr class="row-odd"><td><a class="reference internal" href="#pinpy.API.unfollow_board" title="pinpy.API.unfollow_board"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unfollow_board</span></code></a>(board_id)</td>
-<td>Unfollow a board parameters:          name: ‘board_id’,          description: ‘board name’</td>
+<td>Unfollow a board</td>
 </tr>
 <tr class="row-even"><td><a class="reference internal" href="#pinpy.API.unfollow_user" title="pinpy.API.unfollow_user"><code class="xref py py-obj docutils literal notranslate"><span class="pre">unfollow_user</span></code></a>(user_name)</td>
-<td>Unfollow a user parameters:                                  name: ‘user_name’,                                  description: ‘user name’</td>
+<td>Unfollow a user</td>
 </tr>
 </tbody>
 </table>
@@ -159,115 +159,183 @@
 <dl class="method">
 <dt id="pinpy.API.call">
 <code class="descname">call</code><span class="sig-paren">(</span><em>url</em>, <em>method='get'</em>, <em>params=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.call"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.call" title="Permalink to this definition">¶</a></dt>
-<dd><dl class="docutils">
-<dt>API call to Pinterest</dt>
-<dd><p class="first">url: String, API endpoint with access token attached
-method:  String, HTTP method, get post put delete
-params: Dict, optional, supply necessary parameters
-fields: String, optional, expected return fields,</p>
-<blockquote class="last">
-<div>will return default fields if not specified</div></blockquote>
-</dd>
-</dl>
+<dd><p>API call to Pinterest</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>url</strong> – String, API endpoint with access token attached</li>
+<li><strong>method</strong> – String, HTTP method, defaults to get (get post put delete)</li>
+<li><strong>params</strong> – Dict, optional, supply necessary parameters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.create_board">
 <code class="descname">create_board</code><span class="sig-paren">(</span><em>board_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.create_board"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.create_board" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a new board
-parameters:</p>
-<blockquote>
-<div>name: ‘board name’,
-description: ‘Board description, optional’</div></blockquote>
+<dd><p>Create a new board</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>board_info</strong> – Board info</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.create_pin">
 <code class="descname">create_pin</code><span class="sig-paren">(</span><em>pin_info</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.create_pin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.create_pin" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create a pin on a board
-pinInfo structure:</p>
-<blockquote>
-<div>board: ‘&lt;username&gt;/&lt;board_name&gt;’ OR ‘&lt;board_id&gt;’,
+<dd><p>Create a pin on a board</p>
+<dl class="docutils">
+<dt>pin_info structure:</dt>
+<dd>board: ‘&lt;username&gt;/&lt;board_name&gt;’ OR ‘&lt;board_id&gt;’,
 note: ‘My note’
 link: ‘<a class="reference external" href="https://www.google.com">https://www.google.com</a>’,
-image_url: ‘<a class="reference external" href="http://marketingland.com/pinterest-logo-white-1920.png">http://marketingland.com/pinterest-logo-white-1920.png</a>’</div></blockquote>
+image_url: ‘<a class="reference external" href="http://marketingland.com/pinterest-logo-white-1920.png">http://marketingland.com/pinterest-logo-white-1920.png</a>’</dd>
+</dl>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pin_info</strong> – Pin info</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.follow_board">
 <code class="descname">follow_board</code><span class="sig-paren">(</span><em>board_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.follow_board"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.follow_board" title="Permalink to this definition">¶</a></dt>
-<dd><p>Follow a board
-parameters:</p>
-<blockquote>
-<div>name: ‘board_id’,
-description: ‘board name’</div></blockquote>
+<dd><p>Follow a board</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>board_id</strong> – ID of board to follow</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.follow_user">
 <code class="descname">follow_user</code><span class="sig-paren">(</span><em>user_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.follow_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.follow_user" title="Permalink to this definition">¶</a></dt>
-<dd><p>Follow a user
-parameters:</p>
-<blockquote>
-<div>name: ‘user_name’,
-description: ‘user name’</div></blockquote>
+<dd><p>Follow a user</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_name</strong> – Username of user to follow</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_board_v3">
 <code class="descname">get_board_v3</code><span class="sig-paren">(</span><em>board_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_board_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_board_v3" title="Permalink to this definition">¶</a></dt>
-<dd><p>GET - Gets data on a user using the /api_version/boards/&lt;board_id&gt;/ endpoint</p>
-<dl class="docutils">
-<dt>board_id <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The id of the board to retrieve.</dd>
-</dl>
-<dl class="docutils">
-<dt>json_array</dt>
-<dd>The response from Pinterest.</dd>
-</dl>
-<dl class="docutils">
-<dt>PyPinContentNotFoundError</dt>
-<dd>If the response code == 404, this exception will be raised along
-with the return code of the request.</dd>
-<dt>PyPinUnhandledResponseCodeError</dt>
-<dd>For all other errors</dd>
-</dl>
+<dd><p>Collect a board from Pinterest</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>board_id</strong> – Board ID of board to collect</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict containing board data</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_boards">
 <code class="descname">get_boards</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_boards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_boards" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all of authenticated users’s boards</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List of boards</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_followers">
 <code class="descname">get_followers</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_followers"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_followers" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the authenticated user’s followers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List of followers</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_following_boards">
 <code class="descname">get_following_boards</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_following_boards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_following_boards" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the boards that the authenticated user follows</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List of boards</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_following_interests">
 <code class="descname">get_following_interests</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_following_interests"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_following_interests" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the interests that the authenticated user follows</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List of interests</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_following_users">
 <code class="descname">get_following_users</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_following_users"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_following_users" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get the Pinterest users that the authenticated user follows</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List of users</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_likes">
 <code class="descname">get_likes</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_likes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_likes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Get the pins that the authenticated user likes</p>
+<dd><p>Get the pins that the authenticated users likes</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List of authenticated users likes</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
@@ -278,7 +346,7 @@ with the return code of the request.</dd>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">User profile json object.</td>
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">Dict of user profile data.</td>
 </tr>
 </tbody>
 </table>
@@ -288,75 +356,105 @@ with the return code of the request.</dd>
 <dt id="pinpy.API.get_my_pins">
 <code class="descname">get_my_pins</code><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_my_pins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_my_pins" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get all of authenticated users’s pins</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Return type:</th><td class="field-body">List of pins</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_pin">
 <code class="descname">get_pin</code><span class="sig-paren">(</span><em>pin_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_pin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_pin" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Collect a single pin</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pin_id</strong> – ID of pin to collect</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict containing pin data</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_pin_comments_v3">
 <code class="descname">get_pin_comments_v3</code><span class="sig-paren">(</span><em>pin_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_pin_comments_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_pin_comments_v3" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="method">
-<dt id="pinpy.API.get_public_board">
-<code class="descname">get_public_board</code><span class="sig-paren">(</span><em>board_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_board"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_board" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reference: <a class="reference external" href="https://developers.pinterest.com/docs/api/boards/">https://developers.pinterest.com/docs/api/boards/</a></p>
-<p>GET - Gets all pins on a board using the /v1/boards/&lt;board_spec:board&gt;/pins/ endpoint</p>
-<dl class="docutils">
-<dt>board_id <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The id of the board to retrieve.</dd>
-</dl>
-<dl class="docutils">
-<dt>json_array</dt>
-<dd>The response from Pinterest.</dd>
-</dl>
-<dl class="docutils">
-<dt>RuntimeError</dt>
-<dd>If the response code != 200, this exception will be raised along
-with the return code of the request.</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pinpy.API.get_public_board_pins">
-<code class="descname">get_public_board_pins</code><span class="sig-paren">(</span><em>board_id</em>, <em>cursor=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_board_pins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_board_pins" title="Permalink to this definition">¶</a></dt>
-<dd><p>Reference: <a class="reference external" href="https://developers.pinterest.com/docs/api/boards/">https://developers.pinterest.com/docs/api/boards/</a></p>
-<p>GET - Gets all pins on a board using the /v1/boards/&lt;board_spec:board&gt;/pins/ endpoint</p>
-<dl class="docutils">
-<dt>board_id <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The id of the board to retrieve.</dd>
-</dl>
-<dl class="docutils">
-<dt>json_array</dt>
-<dd>The response from Pinterest.</dd>
-</dl>
-<dl class="docutils">
-<dt>RuntimeError</dt>
-<dd>If the response code != 200, this exception will be raised along
-with the return code of the request.</dd>
-</dl>
-</dd></dl>
-
-<dl class="method">
-<dt id="pinpy.API.get_public_board_pins_v3">
-<code class="descname">get_public_board_pins_v3</code><span class="sig-paren">(</span><em>board_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_board_pins_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_board_pins_v3" title="Permalink to this definition">¶</a></dt>
-<dd><p>EXPERIMENTAL</p>
-<p>Uses the API v3 endpoint to get the pins on a board. More flexible than v1 because of higher request
-limits and the ability to return up to 250 pins per request.</p>
+<dd><p>Collect the comments made on a Pin</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>board_id</strong> – </li>
-<li><strong>bookmark</strong> – Bookmark of the request for pagination.</li>
+<li><strong>pin_id</strong> – Pin ID to collect the comments from</li>
+<li><strong>bookmark</strong> – Pinterest API bookmark used for pagination</li>
+<li><strong>page_size</strong> – Number of items to collect for pagination</li>
 </ul>
 </td>
 </tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of comments (paginated)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pinpy.API.get_public_board">
+<code class="descname">get_public_board</code><span class="sig-paren">(</span><em>board_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_board"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_board" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets public board data</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>board_id</strong> – ID of board to collect</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pinpy.API.get_public_board_pins">
+<code class="descname">get_public_board_pins</code><span class="sig-paren">(</span><em>board_id</em>, <em>cursor=None</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_board_pins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_board_pins" title="Permalink to this definition">¶</a></dt>
+<dd><p>Gets all pins on a board (paginated)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>board_id</strong> – ID of board to collect</li>
+<li><strong>cursor</strong> – Cursor used for pagination</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of pins (paginated)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="pinpy.API.get_public_board_pins_v3">
+<code class="descname">get_public_board_pins_v3</code><span class="sig-paren">(</span><em>board_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_board_pins_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_board_pins_v3" title="Permalink to this definition">¶</a></dt>
+<dd><p>Collects the pins in a board</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>board_id</strong> – ID of board whos pins will be collected</li>
+<li><strong>bookmark</strong> – Pinterest API bookmark used for pagination</li>
+<li><strong>page_size</strong> – Number of items to collect for pagination</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of pins found in the board (paginated)</p>
 </td>
 </tr>
 </tbody>
@@ -366,124 +464,204 @@ limits and the ability to return up to 250 pins per request.</p>
 <dl class="method">
 <dt id="pinpy.API.get_public_pin">
 <code class="descname">get_public_pin</code><span class="sig-paren">(</span><em>pin_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_pin"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_pin" title="Permalink to this definition">¶</a></dt>
-<dd><p>GET - Gets data on a pin using the /v1/pins/&lt;pin&gt;/ endpoint</p>
-<dl class="docutils">
-<dt>pin_id <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The id of the pin to retrieve.</dd>
-</dl>
-<dl class="docutils">
-<dt>json_array</dt>
-<dd>The response from Pinterest.</dd>
-</dl>
-<dl class="docutils">
-<dt>RuntimeError</dt>
-<dd>If the response code != 200, this exception will be raised along
-with the return code of the request.</dd>
-</dl>
+<dd><p>Gets a single pin</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pin_id</strong> – ID of pin to collect</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict of pin data</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_public_pin_v3">
 <code class="descname">get_public_pin_v3</code><span class="sig-paren">(</span><em>pin_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_public_pin_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_public_pin_v3" title="Permalink to this definition">¶</a></dt>
-<dd><p>GET - Gets data on a pin using the /v3/pins/&lt;pin&gt;/ endpoint</p>
-<p>EXPERIMENTAL</p>
-<p>Uses the API v3 endpoint to get the pin. More flexible than v1 because of higher request limits and more data.</p>
-<dl class="docutils">
-<dt>pin_id <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The id of the pin to retrieve.</dd>
-</dl>
-<dl class="docutils">
-<dt>json_array</dt>
-<dd>The response from Pinterest.</dd>
-</dl>
-<dl class="docutils">
-<dt>RuntimeError</dt>
-<dd>If the response code != 200, this exception will be raised along
-with the return code of the request.</dd>
-</dl>
+<dd><p>Collect a single Pin</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>pin_id</strong> – Pin ID of PIN to collect</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict of pin data</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_user">
 <code class="descname">get_user</code><span class="sig-paren">(</span><em>user_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_user" title="Permalink to this definition">¶</a></dt>
-<dd><p>GET - Gets data on a user using the /api_version/users/&lt;user&gt;/ endpoint</p>
-<dl class="docutils">
-<dt>user_id <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The id of the user to retrieve.</dd>
-</dl>
-<dl class="docutils">
-<dt>json_array</dt>
-<dd>The response from Pinterest.</dd>
-</dl>
-<dl class="docutils">
-<dt>RuntimeError</dt>
-<dd>If the response code != 200, this exception will be raised along
-with the return code of the request.</dd>
-</dl>
+<dd><p>Gets specific users profile</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_id</strong> – ID of user whose profile will be collected</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict of user data</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_user_boards">
 <code class="descname">get_user_boards</code><span class="sig-paren">(</span><em>user_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_user_boards"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_user_boards" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Collect a users boards</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_id</strong> – ID of user whose boards will be collected</li>
+<li><strong>bookmark</strong> – Pinterest API bookmark used for pagination</li>
+<li><strong>page_size</strong> – Number of items to collect for pagination</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of users boards (paginated)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_user_followers_v3">
 <code class="descname">get_user_followers_v3</code><span class="sig-paren">(</span><em>user_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_user_followers_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_user_followers_v3" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Collect a users followers</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_id</strong> – User ID whose followers will be collected</li>
+<li><strong>bookmark</strong> – Pinterest API bookmark used for pagination</li>
+<li><strong>page_size</strong> – Number of items to collect for pagination</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of user profiles (paginated)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_user_following_v3">
 <code class="descname">get_user_following_v3</code><span class="sig-paren">(</span><em>user_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_user_following_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_user_following_v3" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Collect the users someone follows</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_id</strong> – User ID of user whose followees will be collected</li>
+<li><strong>bookmark</strong> – Pinterest API bookmark used for pagination</li>
+<li><strong>page_size</strong> – Number of items to collect for pagination</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of user profiles (the followees)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_user_pins_v3">
 <code class="descname">get_user_pins_v3</code><span class="sig-paren">(</span><em>user_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_user_pins_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_user_pins_v3" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Collect a users pins</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>user_id</strong> – User ID of user whose pins will be collected</li>
+<li><strong>bookmark</strong> – Pinterest API bookmark used for pagination</li>
+<li><strong>page_size</strong> – Number of items to collect for pagination</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of pins (paginated)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_user_v3">
 <code class="descname">get_user_v3</code><span class="sig-paren">(</span><em>user_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_user_v3"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_user_v3" title="Permalink to this definition">¶</a></dt>
-<dd><p>GET - Gets data on a user using the /api_version/users/&lt;user&gt;/ endpoint</p>
-<dl class="docutils">
-<dt>user_id <span class="classifier-delimiter">:</span> <span class="classifier">string</span></dt>
-<dd>The id of the user to retrieve.</dd>
-</dl>
-<dl class="docutils">
-<dt>json_array</dt>
-<dd>The response from Pinterest.</dd>
-</dl>
-<dl class="docutils">
-<dt>RuntimeError</dt>
-<dd>If the response code != 200, this exception will be raised along
-with the return code of the request.</dd>
-</dl>
+<dd><p>Collect a particular users profile</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_id</strong> – User ID to collect</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Dict of user data</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.get_visually_similar_pins">
 <code class="descname">get_visually_similar_pins</code><span class="sig-paren">(</span><em>pin_id</em>, <em>bookmark=None</em>, <em>page_size=100</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.get_visually_similar_pins"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.get_visually_similar_pins" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Collect visually similar Pins of a particular Pin.
+NOTICE: This endpoint is rate limited</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>pin_id</strong> – Pin ID to collect the similar pins of</li>
+<li><strong>bookmark</strong> – Pinterest API bookmark used for pagination</li>
+<li><strong>page_size</strong> – Number of items to collect for pagination</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body"><p class="first last">List of similar pins (paginated)</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.unfollow_board">
 <code class="descname">unfollow_board</code><span class="sig-paren">(</span><em>board_id</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.unfollow_board"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.unfollow_board" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unfollow a board
-parameters:</p>
-<blockquote>
-<div>name: ‘board_id’,
-description: ‘board name’</div></blockquote>
+<dd><p>Unfollow a board</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>board_id</strong> – ID of board to unfollow</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="method">
 <dt id="pinpy.API.unfollow_user">
 <code class="descname">unfollow_user</code><span class="sig-paren">(</span><em>user_name</em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/pinpy/api.html#API.unfollow_user"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#pinpy.API.unfollow_user" title="Permalink to this definition">¶</a></dt>
-<dd><p>Unfollow a user
-parameters:</p>
-<blockquote>
-<div>name: ‘user_name’,
-description: ‘user name’</div></blockquote>
+<dd><p>Unfollow a user</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>user_name</strong> – Username of user to unfollow</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 </dd></dl>
@@ -500,7 +678,7 @@ description: ‘user name’</div></blockquote>
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
       <li>Previous: <a href="../index.html" title="previous chapter">Welcome to PinPy’s documentation!</a></li>
-      <li>Next: <a href="pinpy.Board.html" title="next chapter">Board</a></li>
+      <li>Next: <a href="pinpy.BookmarkPagination.html" title="next chapter">BookmarkPagination</a></li>
   </ul></li>
 </ul>
 </div>

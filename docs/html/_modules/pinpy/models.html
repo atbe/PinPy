@@ -31,496 +31,34 @@
             
   <h1>Source code for pinpy.models</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">collections</span> <span class="k">import</span> <span class="n">Iterator</span>
-<span class="kn">from</span> <span class="nn">datetime</span> <span class="k">import</span> <span class="n">datetime</span>
 
-<span class="k">class</span> <span class="nc">JsonDataWrapper</span><span class="p">:</span>
+<span class="k">class</span> <span class="nc">PinterestPaginatedModel</span><span class="p">(</span><span class="n">Iterator</span><span class="p">):</span>
     <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    Reference: http://stackoverflow.com/questions/38464302/wrapping-a-python-class-around-json-data-which-is-better</span>
-
+<span class="sd">    Iterator class to support paginated data from Pinterest</span>
 <span class="sd">    &#39;&#39;&#39;</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span>
+            <span class="bp">self</span><span class="p">,</span>
+            <span class="n">json_data</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">paginate_api_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">page_getter_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">page_setter_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">        Interface between API reference and underlying implementation through json.</span>
-
-<span class="sd">        :param json_data: The json representation of the object as provided by the API.</span>
+<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
+<span class="sd">        :param id: The id of the board the pins belong to.</span>
+<span class="sd">        :param paginate_api_function: API function call that retrieves next page of data.</span>
+<span class="sd">        :param page_getter_func: Function called to get the next page</span>
+<span class="sd">        :param page_setter_func: Function called to set the current page</span>
 <span class="sd">        &#39;&#39;&#39;</span>
+
         <span class="bp">self</span><span class="o">.</span><span class="n">_data</span> <span class="o">=</span> <span class="n">json_data</span>
-
-    <span class="k">def</span> <span class="nf">get</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">):</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param name: Key to search for in self.json_data</span>
-<span class="sd">        :return: Value corresponding to key &#39;name&#39; in self.json_data</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
-
-
-<div class="viewcode-block" id="Pin"><a class="viewcode-back" href="../../api/pinpy.Pin.html#pinpy.Pin">[docs]</a><span class="k">class</span> <span class="nc">Pin</span><span class="p">(</span><span class="n">JsonDataWrapper</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/pins/?</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
-        <span class="c1"># TODO: Confirm timezone of Pin._created_at.</span>
-        <span class="c1"># TODO: Create class container for Pin._attribution. Currently &lt;dict&gt;.</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
-
-<span class="sd">        :param _id: The unique string of numbers and letters that identifies the Pin on Pinterest.</span>
-<span class="sd">        :param _link: Hyperlink to the pin.</span>
-<span class="sd">        :param _url: The URL of the Pin on Pinterest.</span>
-<span class="sd">        :param _creator: Pinterest user that created the pin. models.PinterestUser</span>
-<span class="sd">        :param _board: Pinterest board the Pin is on. models.Board</span>
-<span class="sd">        :param _created_at: The date the Pin was created. ISO 8601.</span>
-<span class="sd">        :param _note: The user-entered description of the Pin.</span>
-<span class="sd">        :param _color: The dominant color of the Pin’s image in hex code format.</span>
-<span class="sd">        :param _repin_count: Number of repins this Pin has. NOT constant.</span>
-<span class="sd">        :param _comment_count: Number of comments this Pin has. NOT constant.</span>
-<span class="sd">        :param _like_count: Number of likes this Pin has. NOT constant.</span>
-<span class="sd">        :param _attribution: The source data for videos, including the title, URL, provider, author name, author URL and provider name.</span>
-
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">],</span> <span class="s1">&#39;%Y-%m-</span><span class="si">%d</span><span class="s1">T%H:%M:%S&#39;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_link</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_creator</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_board</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_created_at</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_note</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_counts</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_media</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_attribution</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_repin_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_comment_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_like_count</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_original_link</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">creator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;creator&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">board</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;board&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created_at&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">original_link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;original_link&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">note</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;note&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;color&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">board</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;board&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">repin_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;repins&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">comment_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comments&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">like_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;likes&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span></div>
-    <span class="k">def</span> <span class="nf">metadata</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;metadata&#39;</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="Board"><a class="viewcode-back" href="../../api/pinpy.Board.html#pinpy.Board">[docs]</a><span class="k">class</span> <span class="nc">Board</span><span class="p">(</span><span class="n">JsonDataWrapper</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/boards/</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
-        <span class="c1"># TODO: Confirm timezone of Board._created_at.</span>
-        <span class="c1"># TODO: Create class container for Board._image. Currently &lt;dict&gt;.</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
-
-<span class="sd">        :param _id: The unique string of numbers and letters that identifies the board on Pinterest.</span>
-<span class="sd">        :param _name: The name of the board.</span>
-<span class="sd">        :param _url: The link to the board.</span>
-<span class="sd">        :param _description: The user-entered description of the board.</span>
-<span class="sd">        :param _creator: The creator of the board. pypin.models.User.</span>
-<span class="sd">        :param _created_at: The date the board was created. ISO 8601 format.</span>
-<span class="sd">        :param _pin_count: Number of pins on the board. NOT constant.</span>
-<span class="sd">        :param _collaborator_count: Number of collaborators on the board. NOT constant.</span>
-<span class="sd">        :param _follower_count: Number of followers this board has. NOT constant.</span>
-<span class="sd">        :param _image: The board’s profile image. The response returns the image’s URL, width and height.</span>
-
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_counts</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_created_at</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_description</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_name</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_url</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_creator</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pin_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pins&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">collaborator_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;collaborators&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">follower_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;followers&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created_at&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">description</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;name&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">url</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;url&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span></div>
-    <span class="k">def</span> <span class="nf">creator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;creator&#39;</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="User"><a class="viewcode-back" href="../../api/pinpy.User.html#pinpy.User">[docs]</a><span class="k">class</span> <span class="nc">User</span><span class="p">(</span><span class="n">JsonDataWrapper</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/users/</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
-        <span class="c1"># TODO: Confirm timezone of User._created_at.</span>
-        <span class="c1"># TODO: Create class container for User._image. Currently &lt;dict&gt;.</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
-
-<span class="sd">        :param _id: The unique string of numbers and letters that identifies the user on Pinterest.</span>
-<span class="sd">        :param _username: The user’s Pinterest username.</span>
-<span class="sd">        :param _first_name: The user’s first name.</span>
-<span class="sd">        :param _last_name: The user’s last name.</span>
-<span class="sd">        :param _bio: The text in the user’s “About you” section in their profile.</span>
-<span class="sd">        :param _created_at: The date the user created their account. ISO 8601 format.</span>
-<span class="sd">        :param _pin_count: Number of pins the user has posted and are available. NOT constant.</span>
-<span class="sd">        :param _follower_count: Number of followers this user has. NOT constant.</span>
-<span class="sd">        :param _following_count: Number of accounts this user is following. NOT constant.</span>
-<span class="sd">        :param _board_count: Number of boards this user has. NOT constant.</span>
-<span class="sd">        :param _like_count: Number of likes this user has. NOT constant.</span>
-<span class="sd">        :param _image: The user’s profile image. The response returns the image’s URL, width and height.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_username</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_first_name</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_last_name</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_bio</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_created_at</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_pin_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_follower_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_board_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_like_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="kc">None</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">username</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;username&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">first_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;first_name&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">last_name</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;last_name&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">bio</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bio&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created_at&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pin_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pins&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">following_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;following&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">follower_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;followers&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">board_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;boards&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">like_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;counts&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;likes&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span></div>
-    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;image&#39;</span><span class="p">)</span>
-
-
-
-<div class="viewcode-block" id="BoardPins"><a class="viewcode-back" href="../../api/pinpy.BoardPins.html#pinpy.BoardPins">[docs]</a><span class="k">class</span> <span class="nc">BoardPins</span><span class="p">(</span><span class="n">JsonDataWrapper</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/users/</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">board_id</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
-        <span class="c1"># TODO: Confirm timezone of User._created_at.</span>
-        <span class="c1"># TODO: Create class container for User._image. Currently &lt;dict&gt;.</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
-<span class="sd">        :param api: The api to be used while this BoardPins object exists.</span>
-
-<span class="sd">        :param _id: The id of the board the pins belong to.</span>
-<span class="sd">        :param _api: The api stored for this BoardPins object.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-
-        <span class="c1"># use a list instead</span>
-        <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">board_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">api</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_high</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">cursor</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;page&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;cursor&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">update_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_json</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_high</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;page&#39;</span><span class="p">][</span><span class="s1">&#39;cursor&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;page&#39;</span><span class="p">][</span><span class="s1">&#39;cursor&#39;</span><span class="p">]</span>
-
-    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_high</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># reset current so the user can iterate over the pins again</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">raise</span> <span class="ne">StopIteration</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">json_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">get_public_board_pins</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cursor</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">update_contents</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__next__</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">+=</span> <span class="mi">1</span></div>
-            <span class="k">return</span> <span class="n">Pin</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-
-<div class="viewcode-block" id="BoardPinsV3"><a class="viewcode-back" href="../../api/pinpy.BoardPinsV3.html#pinpy.BoardPinsV3">[docs]</a><span class="k">class</span> <span class="nc">BoardPinsV3</span><span class="p">(</span><span class="n">JsonDataWrapper</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/users/</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">board_id</span><span class="p">,</span> <span class="n">api</span><span class="p">):</span>
-        <span class="c1"># TODO: Confirm timezone of User._created_at.</span>
-        <span class="c1"># TODO: Create class container for User._image. Currently &lt;dict&gt;.</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
-<span class="sd">        :param api: The api to be used while this BoardPins object exists.</span>
-
-<span class="sd">        :param _id: The id of the board the pins belong to.</span>
-<span class="sd">        :param _api: The api stored for this BoardPins object.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-
-        <span class="c1"># use a list instead</span>
-        <span class="c1"># json_data[&#39;data&#39;] = list(json_data[&#39;data&#39;])</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="n">board_id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_api</span> <span class="o">=</span> <span class="n">api</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_high</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_id</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">bookmark</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="s1">&#39;bookmark&#39;</span> <span class="ow">not</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">pins</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">update_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_json</span><span class="p">):</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_high</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]))</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;bookmark&#39;</span><span class="p">]</span><span class="o">=</span> <span class="n">new_json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-    <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">&gt;=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_high</span><span class="p">:</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">bookmark</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="c1"># reset current so the user can iterate over the pins again</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="mi">0</span>
-                <span class="k">raise</span> <span class="ne">StopIteration</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="n">json_data</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_api</span><span class="o">.</span><span class="n">get_public_board_pins_v3</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">bookmark</span><span class="p">)</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">update_contents</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="fm">__next__</span><span class="p">()</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">+=</span> <span class="mi">1</span></div>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">pins</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
-
-<div class="viewcode-block" id="PinV3"><a class="viewcode-back" href="../../api/pinpy.PinV3.html#pinpy.PinV3">[docs]</a><span class="k">class</span> <span class="nc">PinV3</span><span class="p">(</span><span class="n">JsonDataWrapper</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/pins/?</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">):</span>
-        <span class="c1"># TODO: Confirm timezone of Pin._created_at.</span>
-        <span class="c1"># TODO: Create class container for Pin._attribution. Currently &lt;dict&gt;.</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
-
-<span class="sd">        :param _id: The unique string of numbers and letters that identifies the Pin on Pinterest.</span>
-<span class="sd">        :param _link: Hyperlink to the pin.</span>
-<span class="sd">        :param _url: The URL of the Pin on Pinterest.</span>
-<span class="sd">        :param _creator: Pinterest id of the user who made the pin.</span>
-<span class="sd">        :param _board: Pinterest Board id this pin belongs to.</span>
-<span class="sd">        :param _created_at: The date the Pin was created. ISO 8601.</span>
-<span class="sd">        :param _note: The user-entered description of the Pin.</span>
-<span class="sd">        :param _color: The dominant color of the Pin’s image in hex code format.</span>
-<span class="sd">        :param _repin_count: Number of repins this Pin has. NOT constant.</span>
-<span class="sd">        :param _comment_count: Number of comments this Pin has. NOT constant.</span>
-<span class="sd">        :param _like_count: Number of likes this Pin has. NOT constant.</span>
-<span class="sd">        :param _attribution: The source data for videos, including the title, URL, provider, author name, author URL and provider name.</span>
-
-<span class="sd">        &#39;&#39;&#39;</span>
-        <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">strptime</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;created_at&#39;</span><span class="p">],</span> <span class="s1">&#39;%a, </span><span class="si">%d</span><span class="s1"> %b %Y %H:%M:%S %z&#39;</span><span class="p">)</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_link</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_creator</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_board</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_created_at</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_note</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_color</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_attribution</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_image</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_metadata</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_repin_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_comment_count</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_like_count</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">_original_link</span> <span class="o">=</span> <span class="kc">None</span>
-
-<div class="viewcode-block" id="PinV3.to_json"><a class="viewcode-back" href="../../api/pinpy.PinV3.html#pinpy.PinV3.to_json">[docs]</a>    <span class="k">def</span> <span class="nf">to_json</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span></div>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">id</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;shareable_url&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">creator</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;pinner&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">board</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;board&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;id&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">created_at</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;created_at&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">note</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;description&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">color</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;dominant_color&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">repin_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;repin_count&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">comment_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;comment_count&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">like_count</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;like_count&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">attribution</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;attribution&#39;</span><span class="p">)</span>
-
-    <span class="c1"># TODO Find better represention.</span>
-    <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">image</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;image_medium_url&#39;</span><span class="p">)</span>
-
-    <span class="nd">@property</span></div>
-    <span class="k">def</span> <span class="nf">original_link</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span> <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;link&#39;</span><span class="p">)</span>
-
-
-<span class="k">class</span> <span class="nc">PinterestPaginatedModel</span><span class="p">(</span><span class="n">JsonDataWrapper</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/users/</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">paginate_api_function</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">page_getter_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">page_setter_func</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">data_type</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="c1"># TODO: Confirm timezone of User._created_at.</span>
-        <span class="c1"># TODO: Create class container for User._image. Currently &lt;dict&gt;.</span>
-        <span class="sd">&#39;&#39;&#39;</span>
-
-<span class="sd">        :param json_data: The json that represents this object as returned by the Pinterest API.</span>
-<span class="sd">        :param api: The api to be used while this BoardPins object exists.</span>
-
-<span class="sd">        :param _id: The id of the board the pins belong to.</span>
-<span class="sd">        :param _api: The api stored for this BoardPins object.</span>
-<span class="sd">        &#39;&#39;&#39;</span>
-
-        <span class="c1"># use a list instead</span>
-        <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span> <span class="o">=</span> <span class="nb">id</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">=</span> <span class="mi">0</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">_high</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
+        <span class="k">del</span> <span class="n">json_data</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="nb">id</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_current</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_high</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_paginate_api_function</span> <span class="o">=</span> <span class="n">paginate_api_function</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_page_getter_func</span> <span class="o">=</span> <span class="n">page_getter_func</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_page_setter_func</span> <span class="o">=</span> <span class="n">page_setter_func</span>
@@ -536,11 +74,15 @@
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">items</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">[</span><span class="s1">&#39;status&#39;</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">update_contents</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">new_json</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_high</span> <span class="o">+=</span> <span class="nb">len</span><span class="p">(</span><span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">])</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]))</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">new_json</span><span class="p">[</span><span class="s1">&#39;data&#39;</span><span class="p">]))</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_page_setter_func</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_data</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_page_getter_func</span><span class="p">(</span><span class="n">new_json</span><span class="p">))</span>
 
     <span class="k">def</span> <span class="nf">__next__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -556,64 +98,22 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">+=</span> <span class="mi">1</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_type</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
-            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">items</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
+                <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_data_type</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">-</span> <span class="mi">1</span><span class="p">])</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_items</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_current</span> <span class="o">-</span> <span class="mi">1</span><span class="p">]</span>
 
-
-<div class="viewcode-block" id="UserFollowersV3"><a class="viewcode-back" href="../../api/pinpy.UserFollowersV3.html#pinpy.UserFollowersV3">[docs]</a><span class="k">class</span> <span class="nc">UserFollowersV3</span><span class="p">(</span><span class="n">PinterestPaginatedModel</span><span class="p">):</span>
-    <span class="sd">&#39;&#39;&#39;</span>
-<span class="sd">    API Reference: https://developers.pinterest.com/docs/api/users/</span>
-<span class="sd">    &#39;&#39;&#39;</span>
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">set_page</span><span class="p">(</span><span class="n">json</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
-            <span class="n">json</span><span class="p">[</span><span class="s1">&#39;bookmark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">,</span>
-                         <span class="n">page_getter_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">json</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span></div>
-                         <span class="n">page_setter_func</span><span class="o">=</span><span class="n">set_page</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="UserFollowingV3"><a class="viewcode-back" href="../../api/pinpy.UserFollowingV3.html#pinpy.UserFollowingV3">[docs]</a><span class="k">class</span> <span class="nc">UserFollowingV3</span><span class="p">(</span><span class="n">PinterestPaginatedModel</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">set_page</span><span class="p">(</span><span class="n">json</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
-            <span class="n">json</span><span class="p">[</span><span class="s1">&#39;bookmark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">,</span>
-                         <span class="n">page_getter_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">json</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span></div>
-                         <span class="n">page_setter_func</span><span class="o">=</span><span class="n">set_page</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="UserPinsV3"><a class="viewcode-back" href="../../api/pinpy.UserPinsV3.html#pinpy.UserPinsV3">[docs]</a><span class="k">class</span> <span class="nc">UserPinsV3</span><span class="p">(</span><span class="n">PinterestPaginatedModel</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">set_page</span><span class="p">(</span><span class="n">json</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
-            <span class="n">json</span><span class="p">[</span><span class="s1">&#39;bookmark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">user_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">,</span>
-                         <span class="n">page_getter_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">json</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span></div>
-                         <span class="n">page_setter_func</span><span class="o">=</span><span class="n">set_page</span><span class="p">)</span>
-
-
-<div class="viewcode-block" id="PinCommentsV3"><a class="viewcode-back" href="../../api/pinpy.PinCommentsV3.html#pinpy.PinCommentsV3">[docs]</a><span class="k">class</span> <span class="nc">PinCommentsV3</span><span class="p">(</span><span class="n">PinterestPaginatedModel</span><span class="p">):</span>
-
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">):</span>
-        <span class="k">def</span> <span class="nf">set_page</span><span class="p">(</span><span class="n">json</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
-            <span class="n">json</span><span class="p">[</span><span class="s1">&#39;bookmark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
-
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">,</span>
-                         <span class="n">page_getter_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">json</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span></div>
-                         <span class="n">page_setter_func</span><span class="o">=</span><span class="n">set_page</span><span class="p">)</span>
 
 <div class="viewcode-block" id="BookmarkPagination"><a class="viewcode-back" href="../../api/pinpy.BookmarkPagination.html#pinpy.BookmarkPagination">[docs]</a><span class="k">class</span> <span class="nc">BookmarkPagination</span><span class="p">(</span><span class="n">PinterestPaginatedModel</span><span class="p">):</span>
 
-    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">json_data</span><span class="p">,</span> <span class="nb">id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">):</span>
         <span class="k">def</span> <span class="nf">set_page</span><span class="p">(</span><span class="n">json</span><span class="p">,</span> <span class="n">new_value</span><span class="p">):</span>
             <span class="n">json</span><span class="p">[</span><span class="s1">&#39;bookmark&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">new_value</span>
 
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span><span class="n">json_data</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">,</span> <span class="n">api_paginate_function</span><span class="p">,</span>
-                         <span class="n">page_getter_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">json</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span></div>
-                         <span class="n">page_setter_func</span><span class="o">=</span><span class="n">set_page</span><span class="p">)</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
+            <span class="n">json_data</span><span class="p">,</span>
+            <span class="nb">id</span><span class="p">,</span>
+            <span class="n">api_paginate_function</span><span class="p">,</span>
+            <span class="n">page_getter_func</span><span class="o">=</span><span class="k">lambda</span> <span class="n">json</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;bookmark&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span></div>
+            <span class="n">page_setter_func</span><span class="o">=</span><span class="n">set_page</span><span class="p">)</span>
 </pre></div>
 
           </div>
