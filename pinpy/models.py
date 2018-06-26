@@ -42,7 +42,7 @@ class PinterestPaginatedModel(Iterator):
 
     @property
     def items(self):
-        return self._data
+        return self._items
 
     @property
     def status(self):
