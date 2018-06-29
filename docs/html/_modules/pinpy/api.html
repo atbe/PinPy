@@ -335,21 +335,6 @@
 			<span class="n">request_url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{api_endpoint}</span><span class="s2">?page_size=</span><span class="si">{page_size}</span><span class="s2">&amp;access_token=</span><span class="si">{self.v3_access_token}</span><span class="s2">&quot;</span></div>
 			<span class="k">return</span> <span class="n">pinpy</span><span class="o">.</span><span class="n">BookmarkPagination</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">),</span> <span class="n">board_id</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_public_board_pins_v3</span><span class="p">)</span>
 
-<div class="viewcode-block" id="API.get_public_pin_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_public_pin_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_public_pin_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">pin_id</span><span class="p">):</span>
-		<span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">		Collect a single Pin</span>
-
-<span class="sd">		:param pin_id: Pin ID of PIN to collect</span>
-<span class="sd">		:rtype: Dict of pin data</span>
-<span class="sd">		&quot;&quot;&quot;</span>
-
-		<span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">v3_access_token</span><span class="p">:</span>
-			<span class="k">raise</span> <span class="ne">RuntimeError</span><span class="p">(</span><span class="s1">&#39;API v3 token not provided to API client! Cannot use this method (get_public_board_pins_v3).&#39;</span><span class="p">)</span>
-
-		<span class="n">api_endpoint</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{self.host}</span><span class="s2">/v3/pins/</span><span class="si">{pin_id}</span><span class="s2">/&quot;</span>
-		<span class="n">request_url</span> <span class="o">=</span> <span class="n">f</span><span class="s2">&quot;</span><span class="si">{api_endpoint}</span><span class="s2">?access_token=</span><span class="si">{self.v3_access_token}</span><span class="s2">&quot;</span></div>
-		<span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">call</span><span class="p">(</span><span class="n">request_url</span><span class="p">)[</span><span class="s1">&#39;data&#39;</span><span class="p">]</span>
-
 <div class="viewcode-block" id="API.get_user_v3"><a class="viewcode-back" href="../../api/pinpy.API.html#pinpy.API.get_user_v3">[docs]</a>	<span class="k">def</span> <span class="nf">get_user_v3</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">user_id</span><span class="p">):</span>
 		<span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">		Collect a particular users profile</span>

@@ -36,7 +36,6 @@ API
       ~API.get_public_board_pins
       ~API.get_public_board_pins_v3
       ~API.get_public_pin
-      ~API.get_public_pin_v3
       ~API.get_user
       ~API.get_user_boards
       ~API.get_user_followers_v3
@@ -73,7 +72,6 @@ API
    .. automethod:: get_public_board_pins
    .. automethod:: get_public_board_pins_v3
    .. automethod:: get_public_pin
-   .. automethod:: get_public_pin_v3
    .. automethod:: get_user
    .. automethod:: get_user_boards
    .. automethod:: get_user_followers_v3
