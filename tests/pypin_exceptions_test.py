@@ -11,7 +11,7 @@ class TestPypinExceptions(unittest.TestCase):
 
     def test_content_not_found_exception(self):
         with self.assertRaises(pinpy.exceptions.PinPyContentNotFoundError):
-            self.api.get_public_pin_v3('this_is_a_garbage_pin_number')
+            self.api.get_pin('this_is_a_garbage_pin_number')
 
 if __name__ == '__main__':
     unittest.main()

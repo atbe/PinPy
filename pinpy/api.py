@@ -303,21 +303,6 @@ class API(object):
 			request_url = f"{api_endpoint}?page_size={page_size}&access_token={self.v3_access_token}"
 			return pinpy.BookmarkPagination(self.call(request_url), board_id, self.get_public_board_pins_v3)
 
-	def get_public_pin_v3(self, pin_id):
-		"""
-		Collect a single Pin
-
-		:param pin_id: Pin ID of PIN to collect
-		:rtype: Dict of pin data
-		"""
-
-		if not self.v3_access_token:
-			raise RuntimeError('API v3 token not provided to API client! Cannot use this method (get_public_board_pins_v3).')
-
-		api_endpoint = f"{self.host}/v3/pins/{pin_id}/"
-		request_url = f"{api_endpoint}?access_token={self.v3_access_token}"
-		return self.call(request_url)['data']
-
 	def get_user_v3(self, user_id):
 		"""
 		Collect a particular users profile
