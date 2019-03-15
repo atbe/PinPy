@@ -37,17 +37,18 @@ class API(object):
 		self.wait_on_rate_limit = wait_on_rate_limit
 		self.wait_on_rate_limit_notify = wait_on_rate_limit_notify
 
-	def call(self, url, method='get', params=None):
+	def call(self, url, method='get', params=None, files=None):
 		"""
 		API call to Pinterest
 
 		:param url: String, API endpoint with access token attached
 		:param method:  String, HTTP method, defaults to get (get post put delete)
 		:param params: Dict, optional, supply necessary parameters
+		:param files: Dict, optional, supply necessary files
 		"""
 		sleep_time = 60
 		while True:
-			result = getattr(requests, method)(url, timeout=API.TIMEOUT, data=params)
+			result = getattr(requests, method)(url, timeout=API.TIMEOUT, data=params, files=files)
 
 			if result.status_code in [200, 201]:
 				return result.json()
@@ -220,12 +221,15 @@ class API(object):
 			note: 'My note'
 			link: 'https://www.google.com',
 			image_url: 'http://marketingland.com/pinterest-logo-white-1920.png'
+			image: A file-like object
 
 		:param pin_info: Pin info
 		"""
 
+		image = pin_info.pop('image', None)
+		files = {'image': image} if image else None
 		request_url = f"{self.host}{self.api_root}/pins/?access_token={self.access_token}"
-		return self.call(request_url, 'post', pin_info)
+		return self.call(request_url, 'post', pin_info, files)
 
 	def get_public_pin(self, pin_id):
 		"""

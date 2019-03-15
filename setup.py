@@ -7,4 +7,5 @@ setup(name='pinpy',
       author_email='abeahmed2@gmail.com',
       license='MIT',
       packages=['pinpy'],
+      install_requires=['requests>=2.11.1'],
       zip_safe=False)
